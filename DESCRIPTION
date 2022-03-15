@@ -1,11 +1,25 @@
 Package: VisX
-Type: Package
-Title: What the Package Does (Title Case)
+Type: Shiny Web Application
+Title: Visual interactive model selection
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: c(person("Ying", "Jin", email = "ying.jin@cuanschutz.edu", role = "cre"),
+             person("Ryan", "Peterson", email = "ryan.a.peterson@cuanschutz.edu", role = "aut"),
+             person("Carsten", "Goerg", email = "carsten.goerg@cuanschutz.edu", role = "aut"))
+Maintainer: Ying Jin <ying.jin@cuanschutz.edu>
+Description: An accessible, user-friendly, interactive software application for 
+    guiding data processing and model selection. Supports data transformations with 
+    immediate visual feedback.  
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+Imports: 
+    corrr,
+    dplyr,
+    fastDummies,
+    ggplot2,
+    here,
+    kableExtra,
+    knitr,
+    shiny,
+    tibble,
+    tidyr
