@@ -1,17 +1,17 @@
 #' Create a correlation network plot with significance lines
-#' 
-#' @param df the data set
+#'
+#' @param df the data set to visualize
 #' @param method spearman or pearson
 #' @param sig,level the level at which to display significance lines
-#' @param min_cor see network_plot
-#' @param legend network_plot
-#' @param colours network_plot
-#' @param repel network_plot
-#' @param colors network_plot
+#' @param min_cor the threshold correlation to display
+#' @param legend legend for correaltion
+#' @param colours see network_plot
+#' @param repel see network_plot
+#' @param colors see network_plot
 
 
-network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,  
-                               min_cor = 0.3, legend = TRUE, overlay = TRUE, 
+network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
+                               min_cor = 0.3, legend = TRUE, overlay = TRUE,
                                colours = c("indianred2","white", "skyblue1"),
                                repel = TRUE, colors) {
   ## A few checks
@@ -20,16 +20,16 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
   }
   if (!missing(colors))
     colours <- colors
-  
+
   # create correlation matrix
   rdf <- corrr::correlate(df, method = method)
   pdf <- Hmisc::rcorr(as.matrix(df), type = method)$P
-  
+
   # code borrowed from network_plot
   # for correlation plot
   rdf <- corrr::as_matrix(rdf, diagonal = 1)
   distance <- 1 - abs(rdf)
-  points <- 
+  points <-
     if (ncol(rdf) == 1) {
       matrix(c(0, 0), ncol = 2, dimnames = list(colnames(rdf)))
   }  else if (ncol(rdf) == 2) {
@@ -49,14 +49,14 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
         break
       }
     }
-    if (!cont_flag) 
+    if (!cont_flag)
       rlang::abort("Can't generate network plot.\nAttempts to generate 2-d coordinates failed.")
     rlang::warn("Plot coordinates derived from correlation matrix have dimension < 2.\nPairwise distances have been adjusted to facilitate plotting.")
   }
   points <- data.frame(points)
   colnames(points) <- c("x", "y")
   points$id <- rownames(points)
-  
+
   proximity <- abs(rdf)
   proximity[upper.tri(proximity)] <- NA
   diag(proximity) <- NA
@@ -74,13 +74,13 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
         y <- points$y[row]
         xend <- points$x[col]
         yend <- points$y[col]
-        paths[path, ] <- c(x, y, xend, yend, path_proximity, 
+        paths[path, ] <- c(x, y, xend, yend, path_proximity,
                            path_sign)
         path <- path + 1
       }
     }
   }
-  
+
   ## code from Ryan for p value plot
   proximity2 <- abs(pdf)
   proximity2[upper.tri(proximity2)] <- NA
@@ -107,8 +107,8 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
       }
     }
   }
-  
-  
+
+
   plot_ <- list(
     # Original correlations (from network_plot)
     geom_curve(
@@ -131,9 +131,9 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
         y = y,
         xend = xend,
         yend = yend),
-        color = "black", 
+        color = "black",
         alpha = .5
-      
+
     ),
     scale_alpha(limits = c(0,
                            1)),
@@ -180,5 +180,5 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
 }
 
 # network_plot_wsig(df_test, overlay = F)
-# 
+#
 

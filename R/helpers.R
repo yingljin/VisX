@@ -4,36 +4,47 @@
 # results :  if "html" or "latex"
 # the results will be displayed in html or latex format
 
+#' Create a table for correlation with significance
+#'
+#' @param x a data frame or matrix
+#' @param method spearman or pearson
+#' @param removeTriangle display correlation table as upper or lower trianglur matrix
+#' @param result output as none, html or latex
+#'
+#' @return correlation and significance of input data set
+#' @export
+#'
+#' @examples
 corstars <-function(x, method=c("spearman", "pearson"), removeTriangle=c("lower"),
                     result=c("none", "html", "latex")){
   #Compute correlation matrix
-  
+
   x <- as.matrix(x)
   correlation_matrix<-Hmisc::rcorr(x, type=method[1])
   R <- correlation_matrix$r # Matrix of correlation coeficients
-  p <- correlation_matrix$P # Matrix of p-value 
-  
+  p <- correlation_matrix$P # Matrix of p-value
+
   ## Define notions for significance levels; spacing is important.
   mystars <- ifelse(p < .0001, "****", ifelse(p < .001, "*** ", ifelse(p < .01, "**  ", ifelse(p < .05, "*   ", "    "))))
-  
+
   ## trunctuate the correlation matrix to two decimal
   R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1]
-  
+
   ## build a new matrix that includes the correlations with their apropriate stars
   Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x))
   diag(Rnew) <- paste(diag(R), " ", sep="")
   rownames(Rnew) <- colnames(x)
   colnames(Rnew) <- paste(colnames(x), "", sep="")
-  
+
   ## remove upper triangle of correlation matrix
   if(removeTriangle[1]=="upper"){
     Rnew <- as.matrix(Rnew)
     Rnew[upper.tri(Rnew, diag = TRUE)] <- ""
     Rnew <- as.data.frame(Rnew)
     Rnew <- cbind(Rnew[1:length(Rnew)-1])
-    
+
   }
-  
+
   ## remove lower triangle of correlation matrix
   else if(removeTriangle[1]=="lower"){
     Rnew <- as.matrix(Rnew)
@@ -41,31 +52,24 @@ corstars <-function(x, method=c("spearman", "pearson"), removeTriangle=c("lower"
     Rnew <- as.data.frame(Rnew)
     Rnew <- cbind(Rnew[1:length(Rnew)-1,])
   }
-  
+
   ## remove last column and return the correlation matrix
   if (result[1]=="none") return(Rnew)
   else{
     if(result[1]=="html") print(xtable(Rnew), type="html")
-    else print(xtable(Rnew), type="latex") 
+    else print(xtable(Rnew), type="latex")
   }
-} 
-
-get_mde <- function(df, sd.y = 1) {
-  val <- sapply(df, function(x){
-    powerMediation::minEffect.SLR(
-      n = nrow(df), sigma.x = sd(x, na.rm = T), 
-      sigma.y = sd.y, power = .8, verbose = F)$lambda.a
-  })
-  round(val, 2)
 }
 
-get_se <- function(df, sd.y = 1, r2_full = 0.8) {
-  
-  r2_j <- get_r2j(df)
-  
-  sqrt((1-r2_full) / ((1-r2_j) * (nrow(df) - ncol(df) - 1))) * (sd.y/sd(x, na.rm = T))
-}
 
+#' Computed adjusted R-squared
+#'
+#' @param df a data frame or matrix
+#'
+#' @return a table with adjusted R squared of each variables verses all other variables
+#' @export
+#'
+#' @examples
 get_r2j <- function(df) {
   r2_j <- numeric(ncol(df))
   for(j in 1:ncol(df)) {
@@ -74,39 +78,5 @@ get_r2j <- function(df) {
   r2_j
 }
 
-get_ade <- function(df) {
-  
-}
-
-##### For bookmark #####
-# my_save_interface <- function(id, callback) {
-#   path <- switch(
-#     Sys.info()[['sysname']],
-#     Windows = gsub("\\\\", "/", file.path(Sys.getenv("USERPROFILE"),"Desktop",fsep="/")),
-#     Darwin = "~/Desktop",
-#     getShinyOption("appDir", default = getwd())
-#   )
-#   stateDir <- file.path(path, "shiny_bookmarks", id)
-#   if (!shiny:::dirExists(stateDir))
-#     dir.create(stateDir, recursive = TRUE)
-#   callback(stateDir)
-# }
-
-# my_save_interface <- function(id, callback) {
-#   appdir <- getShinyOption("appDir", default = getwd())
-#   stateDir <- file.path(appdir, "shiny_bookmarks", "aaa")
-#   if (!shiny:::dirExists(stateDir)) {
-#     dir.create(stateDir, recursive = TRUE)
-#   }
-# 
-#   callback(stateDir)
-# }
-# 
-# my_load_interface <- function(id, callback) {
-#   myBookmarksPath <- getShinyOption("myBookmarksPath")
-#   print(myBookmarksPath)
-#   stateDir <- file.path(myBookmarksPath, "shiny_bookmarks", id)
-#   callback(stateDir)
-# }
 
 

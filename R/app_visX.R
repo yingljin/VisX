@@ -7,17 +7,17 @@
 #    http://shiny.rstudio.com/
 #
 
-rm(list = ls())
-library(shiny)
-library(dplyr)
-library(tidyr)
-library(tibble)
-library(corrr)
-library(ggplot2)
-library(knitr)
-library(kableExtra)
-library(here)
-library(fastDummies)
+# rm(list = ls())
+# library(shiny)
+# library(dplyr)
+# library(tidyr)
+# library(tibble)
+# library(corrr)
+# library(ggplot2)
+# library(knitr)
+# library(kableExtra)
+# library(here)
+# library(fastDummies)
 
 
 
