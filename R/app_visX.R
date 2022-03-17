@@ -25,6 +25,7 @@
 # source(here("Code/app_scripts/network_plot_wsig.R"))
 # source(here("Code/app_scripts/server_functions.R"))
 
+VisX <- function(...){
 
 #### Define UI #####
 ui <- function(request){
@@ -409,3 +410,4 @@ server <- function(input, output){
 # Run the application
 shinyApp(ui = ui, server = server, enableBookmarking = "server")
 
+}
