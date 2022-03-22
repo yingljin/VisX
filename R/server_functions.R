@@ -1,54 +1,64 @@
 
 #### update data before transformation #####
 
+#' Update the data reactively
+#'
+#' @param df_lst
+#'
+#' @return
+#' @export
+#' @importFrom janitor clean_names
+#' @importFrom fastDummies dummy_cols
+#'
+#' @examples
 update_reactive_df <- function(df_lst){
-  
+
   # if the data has categorical  variables
   if(sum(sapply(df_lst$df_cat, function(x){!is.numeric(x)}))>0){
-    df_lst$options = df_lst$df_cat %>% 
-      dummy_cols(ignore_na = T, remove_most_frequent_dummy = F) %>% 
-      janitor::clean_names(case = "none") %>%
+    df_lst$options = df_lst$df_cat %>%
+      dummy_cols(ignore_na = T, remove_most_frequent_dummy = F) %>%
+      clean_names(case = "none") %>%
       select(is.numeric) %>%
-      colnames() 
-    df_lst$default = df_lst$df_cat %>% 
-      dummy_cols(ignore_na = T, remove_most_frequent_dummy = T) %>% 
-      janitor::clean_names(case = "none") %>%
+      colnames()
+    df_lst$default = df_lst$df_cat %>%
+      dummy_cols(ignore_na = T, remove_most_frequent_dummy = T) %>%
+      clean_names(case = "none") %>%
       select(is.numeric) %>%
-      colnames() 
-    df_lst$df_num = df_lst$df_cat %>% 
-      dummy_cols(ignore_na = T, remove_most_frequent_dummy = T) %>% 
-      janitor::clean_names(case = "none") %>%
+      colnames()
+    df_lst$df_num = df_lst$df_cat %>%
+      dummy_cols(ignore_na = T, remove_most_frequent_dummy = T) %>%
+      clean_names(case = "none") %>%
       select(is.numeric)}
   # if data has no categorical variables
   else{
-    df_lst$options = df_lst$df_cat %>% colnames() 
-    df_lst$default = df_lst$df_cat %>% colnames() 
+    df_lst$options = df_lst$df_cat %>% colnames()
+    df_lst$default = df_lst$df_cat %>% colnames()
     df_lst$df_num = df_lst$df_cat
   }
-  
+
 }
 
 ##### Update data after transformation #####
 
 update_transform_df <- function(df_lst){
-  
+
   # if data has categorical variables
   if(sum(sapply(df_lst$df_cat, function(x){!is.numeric(x)}))>0){
-    df_lst$df_num = df_lst$df_cat %>% 
+    df_lst$df_num = df_lst$df_cat %>%
       select(-all_of(df_lst$remove)) %>%
-      dummy_cols(ignore_na = T, remove_most_frequent_dummy = T, remove_selected_columns = T) %>% 
-      janitor::clean_names(case = "none") %>%
+      dummy_cols(ignore_na = T, remove_most_frequent_dummy = T, remove_selected_columns = T) %>%
+      clean_names(case = "none") %>%
       select(is.numeric)
     df_lst$default = df_lst$df_num %>% colnames()
-    df_lst$options = df_lst$df_cat %>% 
-      dummy_cols(ignore_na = T, remove_most_frequent_dummy = F, remove_selected_columns = T) %>% 
-      janitor::clean_names(case = "none") %>%
-      colnames() 
+    df_lst$options = df_lst$df_cat %>%
+      dummy_cols(ignore_na = T, remove_most_frequent_dummy = F, remove_selected_columns = T) %>%
+      clean_names(case = "none") %>%
+      colnames()
   }
   else{
-    df_lst$df_num = df_lst$df_cat %>% 
+    df_lst$df_num = df_lst$df_cat %>%
       select(-all_of(df_lst$remove))
-    df_lst$default = df_lst$df_num %>% colnames() 
+    df_lst$default = df_lst$df_num %>% colnames()
     df_lst$options = c(df_lst$default, df_lst$remove)
   }
   df_lst$df_all = df_lst$df_cat
@@ -56,13 +66,21 @@ update_transform_df <- function(df_lst){
 
 #### Data for correlation diagram #####
 
+#' Prepare data for correlation diagram
+#'
+#' @param df_lst
+#'
+#' @return
+#' @export
+#'
+#' @examples
 df_for_figure <- function(df_lst){
    # to save current status of correlation panel
   if(is.null(df_lst$new_df_num)){
-    df <- as.matrix(df_lst$df_num) 
+    df <- as.matrix(df_lst$df_num)
   }
   else{
-    df <- as.matrix(df_lst$new_df_num) 
+    df <- as.matrix(df_lst$new_df_num)
   }
   return(df)
 }
@@ -71,6 +89,15 @@ df_for_figure <- function(df_lst){
 
 #### histograms #####
 
+#' Function to make histograms
+#'
+#' @param df_hist
+#'
+#' @return
+#' @export
+#' @import ggplot2
+#'
+#' @examples
 make_hist <- function(df_hist){
   p <- df_hist %>%
     pivot_longer(everything()) %>%
@@ -92,10 +119,19 @@ make_hist <- function(df_hist){
 
 ##### bar plots #####
 
+#' Function to make barplots
+#'
+#' @param df_bar
+#'
+#' @return
+#' @export
+#' @import ggplot
+#'
+#' @examples
 make_bar <- function(df_bar){
   p <- df_bar %>%
     pivot_longer(everything()) %>%
-    group_by(name) %>% 
+    group_by(name) %>%
     mutate(N = sum(!is.na(value))) %>%
     mutate(name = paste(name, " (N = ", N, ")", sep = "")) %>%
     select(-N) %>%

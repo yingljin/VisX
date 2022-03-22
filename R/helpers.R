@@ -13,14 +13,15 @@
 #'
 #' @return correlation and significance of input data set
 #' @export
-#'
+#' @import corrr
+#' @importFrom Hmisc rcorr
 #' @examples
 corstars <-function(x, method=c("spearman", "pearson"), removeTriangle=c("lower"),
                     result=c("none", "html", "latex")){
   #Compute correlation matrix
 
   x <- as.matrix(x)
-  correlation_matrix<-Hmisc::rcorr(x, type=method[1])
+  correlation_matrix<-rcorr(x, type=method[1])
   R <- correlation_matrix$r # Matrix of correlation coeficients
   p <- correlation_matrix$P # Matrix of p-value
 

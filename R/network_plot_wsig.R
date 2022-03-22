@@ -8,7 +8,11 @@
 #' @param colours see network_plot
 #' @param repel see network_plot
 #' @param colors see network_plot
-
+#' @import corrr
+#' @import rlang
+#' @import ggrepel
+#' @importFrom Hmisc rcorr
+#' @importFrom stats cmdscale
 
 network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
                                min_cor = 0.3, legend = TRUE, overlay = TRUE,
@@ -22,12 +26,12 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
     colours <- colors
 
   # create correlation matrix
-  rdf <- corrr::correlate(df, method = method)
-  pdf <- Hmisc::rcorr(as.matrix(df), type = method)$P
+  rdf <- correlate(df, method = method)
+  pdf <- rcorr(as.matrix(df), type = method)$P
 
   # code borrowed from network_plot
   # for correlation plot
-  rdf <- corrr::as_matrix(rdf, diagonal = 1)
+  rdf <- as_matrix(rdf, diagonal = 1)
   distance <- 1 - abs(rdf)
   points <-
     if (ncol(rdf) == 1) {
@@ -35,7 +39,7 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
   }  else if (ncol(rdf) == 2) {
     matrix(c(0, -0.1, 0, 0.1), ncol = 2, dimnames = list(colnames(rdf)))
   }  else {
-    suppressWarnings(stats::cmdscale(distance, k = 2))
+    suppressWarnings(cmdscale(distance, k = 2))
   }
   if (ncol(points) < 2) {
     cont_flag <- FALSE
@@ -43,15 +47,15 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
     diag(shift_matrix) <- 0
     for (shift in 10^(-6:-1)) {
       shifted_distance <- distance + shift * shift_matrix
-      points <- suppressWarnings(stats::cmdscale(shifted_distance))
+      points <- suppressWarnings(cmdscale(shifted_distance))
       if (ncol(points) > 1) {
         cont_flag <- TRUE
         break
       }
     }
     if (!cont_flag)
-      rlang::abort("Can't generate network plot.\nAttempts to generate 2-d coordinates failed.")
-    rlang::warn("Plot coordinates derived from correlation matrix have dimension < 2.\nPairwise distances have been adjusted to facilitate plotting.")
+      abort("Can't generate network plot.\nAttempts to generate 2-d coordinates failed.")
+      warn("Plot coordinates derived from correlation matrix have dimension < 2.\nPairwise distances have been adjusted to facilitate plotting.")
   }
   points <- data.frame(points)
   colnames(points) <- c("x", "y")
@@ -148,7 +152,7 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
       colour = "white"
     ),
     if (repel)
-      ggrepel::geom_text_repel(
+      geom_text_repel(
         data = points,
         aes(x, y, label = id),
         fontface = "bold",

@@ -7,24 +7,30 @@
 #    http://shiny.rstudio.com/
 #
 
-# rm(list = ls())
-# library(shiny)
-# library(dplyr)
-# library(tidyr)
-# library(tibble)
-# library(corrr)
-# library(ggplot2)
-# library(knitr)
-# library(kableExtra)
-# library(here)
-# library(fastDummies)
 
 
-
-# source(here("Code/app_scripts/helpers.R"))
-# source(here("Code/app_scripts/network_plot_wsig.R"))
-# source(here("Code/app_scripts/server_functions.R"))
-
+#' Run shiny app
+#'
+#' @param ...
+#'
+#' @return
+#' @export
+#' @import shiny
+#' @import dplyr
+#' @import ggplot2
+#' @import here
+#' @importFrom janitor clean_names
+#' @importFrom fastDummies dummy_cols
+#' @import kableExtra
+#' @import knitr
+#' @import magrittr
+#' @import purrr
+#' @import readr
+#' @import stringr
+#' @import tibble
+#' @import tidyr
+#' @examples
+#' VisX() # call the shiny app
 VisX <- function(...){
 
 #### Define UI #####
@@ -154,8 +160,8 @@ server <- function(input, output){
     ### dynamic input panel, reactive to data upload
     output$initial_vars <- renderUI({
         checkboxGroupInput("initial_selected", "Select variables",
-                            choices = bl_df() %>% janitor::clean_names(case = "none") %>% colnames(),
-                           selected = bl_df() %>% janitor::clean_names(case = "none") %>% colnames())
+                            choices = bl_df() %>% clean_names(case = "none") %>% colnames(),
+                           selected = bl_df() %>% clean_names(case = "none") %>% colnames())
     })
     ### dynamic output from initialized data
     output$data <- renderTable({
@@ -227,7 +233,7 @@ server <- function(input, output){
                  {if(sum(sapply(df_lst$df_cat, function(x){!is.numeric(x)}))>0){
                      df_lst$new_df_num = df_lst$df_cat %>%
                          dummy_cols(ignore_na = T, remove_most_frequent_dummy = F) %>%
-                         janitor::clean_names(case = "none") %>%
+                         clean_names(case = "none") %>%
                          select(is.numeric) %>%
                          select(all_of(input$vars_cor))}
                      else{
@@ -242,7 +248,7 @@ server <- function(input, output){
       tryCatch(
         checkboxGroupInput("vars_dist","Variables to transform",
                            choices = c(df_lst$df_cat %>% select(-all_of(df_lst$remove)) %>% select(is.numeric) %>%
-                                         janitor::clean_names(case = "none") %>% colnames(),
+                                         clean_names(case = "none") %>% colnames(),
                                        sort(df_lst$remove[!grepl("_bi|_bin", df_lst$remove)]))),
         error = function(e){h5("Plot is loading")}
       )
@@ -254,7 +260,7 @@ server <- function(input, output){
       cat_var_names <- df_lst$df_cat %>%
         # select(-all_of(df_lst$remove)) %>%
         select(!is.numeric) %>%
-        janitor::clean_names(case = "none") %>% colnames()
+        clean_names(case = "none") %>% colnames()
       selectInput("vars_bin", "Variable to collapse", cat_var_names)
     })
     output$levels <- renderUI({
@@ -266,7 +272,7 @@ server <- function(input, output){
     ## dichotomization
     output$vars_bi <- renderUI({
       num_var_names <- df_lst$df_cat %>% select(is.numeric) %>%
-        janitor::clean_names(case = "none") %>% colnames()
+        clean_names(case = "none") %>% colnames()
       selectInput("vars_to_dic", "Variable to dichotomize", num_var_names)
     })
     output$thres <- renderUI({

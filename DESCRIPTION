@@ -17,16 +17,19 @@ Imports:
     dplyr,
     fastDummies,
     ggplot2,
+    ggrepel,
     here,
+    Hmisc,
+    janitor,
     kableExtra,
     knitr,
     magrittr,
     purrr,
     readr,
+    rlang,
     shiny,
+    stats,
     stringr,
     tibble,
     tidyr
 RoxygenNote: 7.1.2
-Depends: 
-    tidyverse
