@@ -125,7 +125,7 @@ make_hist <- function(df_hist){
 #'
 #' @return
 #' @export
-#' @import ggplot
+#' @import ggplot2
 #'
 #' @examples
 make_bar <- function(df_bar){

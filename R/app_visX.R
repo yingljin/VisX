@@ -29,8 +29,8 @@
 #' @import stringr
 #' @import tibble
 #' @import tidyr
-#' @examples
-#' VisX() # call the shiny app
+#' @examples VisX()
+#'
 VisX <- function(...){
 
 #### Define UI #####
@@ -395,6 +395,8 @@ server <- function(input, output){
       state$values$current_default <- df_lst$default
       state$values$current_options <- df_lst$options
       state$values$current_remove <- df_lst$remove
+      state$values$current_new_df_num <- df_lst$new_df_num
+      state$values$current_new_default <- df_lst$new_default
     })
 
     onRestore(function(state){
@@ -406,6 +408,8 @@ server <- function(input, output){
       df_lst$default <- state$values$current_default
       df_lst$options <- state$values$current_options
       df_lst$remove <- state$values$current_remove
+      df_lst$new_df_num <- state$values$current_new_df_num
+      df_lst$new_default <- state$values$current_new_default
     })
 
     setBookmarkExclude(c("update_init", "newvars_cor", "newtrans", "newop"))

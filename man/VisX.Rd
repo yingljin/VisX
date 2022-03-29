@@ -16,5 +16,6 @@ VisX(...)
 Run shiny app
 }
 \examples{
-VisX() # call the shiny app
+VisX()
+
 }
