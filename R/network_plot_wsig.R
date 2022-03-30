@@ -9,7 +9,7 @@
 #' @param repel see network_plot
 #' @param colors see network_plot
 #' @import corrr
-#' @import rlang
+#' @rawNamespace import(rlang, except = set_names)
 #' @import ggrepel
 #' @importFrom Hmisc rcorr
 #' @importFrom stats cmdscale

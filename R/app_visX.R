@@ -21,14 +21,15 @@
 #' @import here
 #' @importFrom janitor clean_names
 #' @importFrom fastDummies dummy_cols
-#' @import kableExtra
+#' @importFrom kableExtra kable
+#' @importFrom kableExtra kable_styling
+#' @importFrom kableExtra row_spec
 #' @import knitr
 #' @import magrittr
-#' @import purrr
 #' @import readr
 #' @import stringr
 #' @import tibble
-#' @import tidyr
+#' @importFrom tidyr pivot_longer
 #' @examples VisX()
 #'
 VisX <- function(...){
