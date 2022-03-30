@@ -157,7 +157,9 @@ server <- function(input, output){
         )})
     init_df <- reactiveValues(init_df=NULL)
     observeEvent(input$update_init,
-                 {init_df$init_df = bl_df() %>% select(all_of(input$initial_selected))})
+                 {init_df$init_df = bl_df() %>%
+                   clean_names(case = "none") %>%
+                   select(all_of(input$initial_selected))})
     ### dynamic input panel, reactive to data upload
     output$initial_vars <- renderUI({
         checkboxGroupInput("initial_selected", "Select variables",
@@ -167,7 +169,7 @@ server <- function(input, output){
     ### dynamic output from initialized data
     output$data <- renderTable({
       if(is.null(init_df$init_df)){
-          bl_df()
+          bl_df() %>% clean_names(case = "none")
       }
       else{init_df$init_df}
     })
@@ -177,7 +179,9 @@ server <- function(input, output){
 
     # from data panel: initialization
     observeEvent(input$update_init,
-                 {df_lst$df_all = bl_df() %>% select(all_of(input$initial_selected))
+                 {df_lst$df_all = bl_df() %>%
+                   clean_names(case = "none") %>%
+                   select(all_of(input$initial_selected))
                   df_lst$df_all <- df_lst$df_all[, sort(colnames(df_lst$df_all))]
                   df_lst$df_cat = df_lst$df_all
                   update_reactive_df(df_lst)
