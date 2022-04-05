@@ -13,7 +13,8 @@ network_plot_wsig(
   overlay = TRUE,
   colours = c("indianred2", "white", "skyblue1"),
   repel = TRUE,
-  colors
+  colors,
+  label_size = 5
 )
 }
 \arguments{

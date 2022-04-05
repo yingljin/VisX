@@ -2,20 +2,21 @@
 % Please edit documentation in R/app_visX.R
 \name{VisX}
 \alias{VisX}
-\title{Run shiny app}
+\title{Run the VisX application}
 \usage{
-VisX(...)
-}
-\arguments{
-\item{...}{}
+VisX()
 }
 \value{
-
+The application interface
 }
 \description{
-Run shiny app
+This function starts the VisX application for basic data pre-processing and variables selection
+}
+\details{
+The application interface will pop up after calling this function;
+data can be uploaded in that interface;
+close the interface or interrupt R to stop the application
 }
 \examples{
 VisX()
-
 }

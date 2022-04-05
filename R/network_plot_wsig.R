@@ -17,7 +17,7 @@
 network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
                                min_cor = 0.3, legend = TRUE, overlay = TRUE,
                                colours = c("indianred2","white", "skyblue1"),
-                               repel = TRUE, colors) {
+                               repel = TRUE, colors, label_size = 5) {
   ## A few checks
   if (min_cor < 0 || min_cor > 1) {
     stop("min_cor must be a value ranging from zero to one.")
@@ -156,7 +156,7 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
         data = points,
         aes(x, y, label = id),
         fontface = "bold",
-        size = 5,
+        size = label_size,
         segment.size = 0,
         segment.color = "white"
       ),
@@ -165,7 +165,7 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
         data = points,
         aes(x, y, label = id),
         fontface = "bold",
-        size = 5
+        size = label_size
       ),
     expand_limits(
       x = c(min(points$x) - 0.1, max(points$x) +

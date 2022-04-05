@@ -9,11 +9,14 @@
 
 
 
-#' Run shiny app
+#' Run the VisX application
 #'
-#' @param ...
+#' @description This function starts the VisX application for basic data pre-processing and variables selection
+#' @details The application interface will pop up after calling this function;
+#' data can be uploaded in that interface;
+#' close the interface or interrupt R to stop the application
+#' @return The application interface
 #'
-#' @return
 #' @export
 #' @import shiny
 #' @import dplyr
@@ -30,9 +33,9 @@
 #' @import stringr
 #' @import tibble
 #' @importFrom tidyr pivot_longer
-#' @examples VisX()
-#'
-VisX <- function(...){
+#' @examples
+#' VisX()
+VisX <- function(){
 
 #### Define UI #####
 ui <- function(request){
@@ -311,13 +314,14 @@ server <- function(input, output){
       df <- df_for_figure(df_lst)
       tryCatch(network_plot_wsig(df, method = "spearman", sig.level = ifelse(input$sig!= "None", input$sig, -1),
                           overlay = !input$all,
-                          min_cor = input$min_cor, legend = TRUE, repel = TRUE),
+                          min_cor = input$min_cor, legend = TRUE, repel = TRUE,
+                          label_size = 10),
                error = function(e){
                  ggplot()+
                    theme_void()+
                    labs(title = "Failed to compute spearman correlation")+
                    theme(title = element_text(size = 20))})
-        }, width = 800, height = 800)
+        }, width = 900, height = 900)
 
     # variables info   : vif, r2j
     output$varinfo <- renderText({
