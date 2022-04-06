@@ -315,7 +315,7 @@ server <- function(input, output){
       tryCatch(network_plot_wsig(df, method = "spearman", sig.level = ifelse(input$sig!= "None", input$sig, -1),
                           overlay = !input$all,
                           min_cor = input$min_cor, legend = TRUE, repel = TRUE,
-                          label_size = 10),
+                          label_size = 8),
                error = function(e){
                  ggplot()+
                    theme_void()+

@@ -176,7 +176,9 @@ network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
     theme_void(),
     guides(size = "none", alpha = "none"),
     if (legend)
-      labs(colour = NULL),
+      theme(legend.text = element_text(size = 15),
+            legend.title = element_blank(),
+            legend.key.size = unit(1, "cm")),
     if (!legend)
       theme(legend.position = "none")
   )
