@@ -2,16 +2,20 @@
 % Please edit documentation in R/server_functions.R
 \name{make_bar}
 \alias{make_bar}
-\title{Function to make barplots}
+\title{Visualize categorical variables}
 \usage{
 make_bar(df_bar)
 }
 \arguments{
-\item{df_bar}{}
+\item{df_bar}{A wide-format data include all categorical variables to visualize}
 }
 \value{
-
+Barplots in categorical variable tab
 }
 \description{
-Function to make barplots
+This functions generates barplots for each categorical variable
+}
+\details{
+This function only run internally in VisX application because it depends on
+ reactive values from user input
 }

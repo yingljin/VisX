@@ -2,16 +2,24 @@
 % Please edit documentation in R/helpers.R
 \name{get_r2j}
 \alias{get_r2j}
-\title{Computed adjusted R-squared}
+\title{Adjusted R-squared}
 \usage{
 get_r2j(df)
 }
 \arguments{
-\item{df}{a data frame or matrix}
+\item{df}{data frame or matrix}
 }
 \value{
-a table with adjusted R squared of each variables verses all other variables
+A table with values of adjusted R squared of each variable
 }
 \description{
-Computed adjusted R-squared
+Compute adjusted R-squared for each variable
+}
+\details{
+Adjusted R-squared is a measure of collinearity,
+defined as how one variable is linearly associated with all other variables in the data set.
+}
+\examples{
+df <- data.frame(X1 = rnorm(100), X2 = rnorm(100), X3 = rnorm(100))
+get_r2j(df)
 }

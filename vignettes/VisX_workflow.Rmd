@@ -1,0 +1,77 @@
+---
+title: "VisX workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{VisX workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(devtools)
+load_all()
+library(VisX)
+data("mtcars")
+```
+
+# Introduction 
+
+In this document, we will illustrate the VisX workflow using "mtcars" data as an example. 
+
+# Uplaod data
+
+After starting the app with VisX() command, user can upload data spreadsheet from their own device by clicking "Browse" on the left side panel. 
+
+Once the data is uploaded, the data tab provides an overview of the entire spreadsheet, and a list of variables names will appear in the left side panel. User can select variables of interest for following analysis. After clicking the "intialize" Button, unselected variables will be removed from the data set. 
+
+
+# Pre-preocessing
+
+## Numeric variables
+
+This tab presents histograms for each numeric variable in the dataset, where mean and one standard deviation around mean marked out respectively with solid and dashed red lines. It also supports the following operations for preprocessing:
+
+- Univariate transformation: log/square-root
+- Multivariate transformation: mean/ratio. Ratio can only be implemented on two variables. 
+
+User can select variables to transform from left side panel.  Below are two examples of log transformation and ratio:
+
+## Categorical variables
+
+This tab presents barplot for each categorical variable in the dataset. It supports the following operations for pre-processing
+
+- Collapsing levels of existing categorical variables
+- Creating new categorical variable by dichotomization of numeric variables
+
+For collasping, user can specify the variable to collapse, and a list of all levels in this variable will show up reactively. User can then specify the levels to collapse and name the new category as needed (example).
+
+For Dichotomization, user can specify the variable to dichotomize, and a slidebar of the range of the corresponding numeric variable will show up reactively. User can then specify a threshold, and name the two new levels as needed (example).
+
+
+# Correlation
+
+## Correlation diagram
+
+This tab presents pairwise correlation between variables in the data with a network diagram. The thickness of edges represents value of Spearman correlation coefficient, where correlation with categorical variables are calculated by creating dummy variables corresponding to each level. A black line overlaying such edges will show up if the correlation is also significant by Spearman correlation test. Variables that are strongly correlated are also clustered closer to each other in 2D space. 
+
+This tab also supports the following operations for better visualization (examples)
+
+- Adding/removing variables
+- Change the correlation threshold to be visualized
+- Change the significance threshold to be visualized
+- Show all significant relationships
+
+## Statistics
+
+This tab presents additional statistics that provide information about inter-correlation between variables. Variance inflation factor (VIF) is a popular measure for multicollinearity, which indicates increase of overall variance caused by the correlation between once covariates and all other covariates. Adjusted R-squared (R2j) indicates how each covariate is linearly associated with all other covariates. In addition, the raw Spearman correlation and significance from Spearman correlation test are also presented in the "Correlation" tab in matrix format. 
+
+
+
+

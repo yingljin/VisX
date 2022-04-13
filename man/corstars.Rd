@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpers.R
 \name{corstars}
 \alias{corstars}
-\title{Create a table for correlation with significance}
+\title{Correlation matrix}
 \usage{
 corstars(
   x,
@@ -12,17 +12,21 @@ corstars(
 )
 }
 \arguments{
-\item{x}{a data frame or matrix}
+\item{x}{data frame or matrix}
 
-\item{method}{spearman or pearson}
+\item{method}{method to calculate correlation coefficient; spearman or pearson}
 
-\item{removeTriangle}{display correlation table as upper or lower trianglur matrix}
+\item{removeTriangle}{display correlation table as upper or lower triangular matrix}
 
-\item{result}{output as none, html or latex}
+\item{result}{output format as none, html or latex}
 }
 \value{
-correlation and significance of input data set
+Correlation coefficient and significance of correlation test between each pair of varaibles
 }
 \description{
-Create a table for correlation with significance
+Calculate pairwise correlation matrix with significance
+}
+\examples{
+data(mtcars)
+corstars(mtcars, method = "spearman")
 }

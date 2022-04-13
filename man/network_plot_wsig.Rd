@@ -2,7 +2,7 @@
 % Please edit documentation in R/network_plot_wsig.R
 \name{network_plot_wsig}
 \alias{network_plot_wsig}
-\title{Create a correlation network plot with significance lines}
+\title{Correlation diagram}
 \usage{
 network_plot_wsig(
   df,
@@ -18,22 +18,31 @@ network_plot_wsig(
 )
 }
 \arguments{
-\item{df}{the data set to visualize}
+\item{df}{Data set to visualize}
 
-\item{method}{spearman or pearson}
+\item{method}{Method to compute correlation coefficient; spearman or pearson}
 
-\item{min_cor}{the threshold correlation to display}
+\item{sig.level}{Significance threshold to display}
 
-\item{legend}{legend for correaltion}
+\item{min_cor}{Correlation threshold to display}
 
-\item{colours}{see network_plot}
+\item{legend}{Include legend in the diagram; TRUE or FALSE}
 
-\item{repel}{see network_plot}
+\item{colours}{Vector of colors to use for n-color gradient.}
 
-\item{colors}{see network_plot}
+\item{repel}{Should variable labels repel each other; TRUE or FALSE}
 
-\item{sig, level}{the level at which to display significance lines}
+\item{colors}{same as colours}
+}
+\value{
+A correlation diagram visualizing pairwise correlation between variables with network
+Thickness and color hue of edges indicate strength of correlation, and
+significant relationships are marked out as solid line.
 }
 \description{
-Create a correlation network plot with significance lines
+Create a network plot for pairwise correlation between variables
+}
+\examples{
+data(mtcars)
+network_plot_wsig(mtcars, method = "spearman", sig.level = 0.05, min_cor = 0.3)
 }

@@ -1,18 +1,29 @@
-#' Create a correlation network plot with significance lines
+#' Correlation diagram
+#' @description Create a network plot for pairwise correlation between variables
 #'
-#' @param df the data set to visualize
-#' @param method spearman or pearson
-#' @param sig,level the level at which to display significance lines
-#' @param min_cor the threshold correlation to display
-#' @param legend legend for correaltion
-#' @param colours see network_plot
-#' @param repel see network_plot
-#' @param colors see network_plot
+#' @param df Data set to visualize
+#' @param method Method to compute correlation coefficient; spearman or pearson
+#' @param sig.level Significance threshold to display
+#' @param min_cor Correlation threshold to display
+#' @param legend Include legend in the diagram; TRUE or FALSE
+#' @param repel Should variable labels repel each other; TRUE or FALSE
+#' @param colours Vector of colors to use for n-color gradient.
+#' @param colors same as colours
+#'
+#' @return A correlation diagram visualizing pairwise correlation between variables with network
+#' Thickness and color hue of edges indicate strength of correlation, and
+#' significant relationships are marked out as solid line.
+#'
+#'
 #' @import corrr
 #' @rawNamespace import(rlang, except = set_names)
 #' @import ggrepel
 #' @importFrom Hmisc rcorr
 #' @importFrom stats cmdscale
+#'
+#' @examples
+#' data(mtcars)
+#' network_plot_wsig(mtcars, method = "spearman", sig.level = 0.05, min_cor = 0.3)
 
 network_plot_wsig <- function (df, method = "spearman", sig.level = 0.05,
                                min_cor = 0.3, legend = TRUE, overlay = TRUE,

@@ -7,11 +7,17 @@
 df_for_figure(df_lst)
 }
 \arguments{
-\item{df_lst}{}
+\item{df_lst}{A list of datasets with all pre-processed and selected variables}
 }
 \value{
-
+Data frame to visualize and used to computed multicollinearity/correlation statistics
 }
 \description{
-Prepare data for correlation diagram
+This function finds the proper data set for correlation diagram and statistics
+}
+\details{
+This function only run internally in VisX application because it depends on
+ reactive values from user input.
+ The purpose is to allow users to apply pre-processing operations iteratively without
+ resetting to the initial status.
 }

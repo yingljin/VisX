@@ -1,16 +1,17 @@
 
 #### update data before transformation #####
 
-#' Update the data reactively
+#' Initialize data and generate reactive input panel
+#' @description Update data sets reactively with data initialization,
+#' as well as input panel in following tabs
+#' @details This function only run internally in VisX application because it depends on
+#'  reactive values from user input
+#' @param df_lst A list of datasets generated from user upload
 #'
-#' @param df_lst
-#'
-#' @return
-#' @export
+#' @return A list of initialized datasets
 #' @importFrom janitor clean_names
 #' @importFrom fastDummies dummy_cols
 #'
-#' @examples
 update_reactive_df <- function(df_lst){
 
   # if the data has categorical  variables
@@ -40,6 +41,17 @@ update_reactive_df <- function(df_lst){
 
 ##### Update data after transformation #####
 
+#' Update data after pre-processing operation
+#'
+#' @param df_lst A list of datasets
+#' @description Update data sets reactively with pre-processing operations specified by user,
+#' as well as input panel in following tabs
+#' @details This function only run internally in VisX application because it depends on
+#'  reactive values from user input
+#' @return A list of pre-processed datasets
+#' @importFrom janitor clean_names
+#' @importFrom fastDummies dummy_cols
+
 update_transform_df <- function(df_lst){
 
   # if data has categorical variables
@@ -67,13 +79,16 @@ update_transform_df <- function(df_lst){
 #### Data for correlation diagram #####
 
 #' Prepare data for correlation diagram
+#' @description This function finds the proper data set for correlation diagram and statistics
+#' @details This function only run internally in VisX application because it depends on
+#'  reactive values from user input.
+#'  The purpose is to allow users to apply pre-processing operations iteratively without
+#'  resetting to the initial status.
 #'
-#' @param df_lst
+#' @param df_lst A list of datasets with all pre-processed and selected variables
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return Data frame to visualize and used to computed multicollinearity/correlation statistics
+
 df_for_figure <- function(df_lst){
    # to save current status of correlation panel
   if(is.null(df_lst$new_df_num)){
@@ -89,15 +104,18 @@ df_for_figure <- function(df_lst){
 
 #### histograms #####
 
-#' Function to make histograms
+#' Visualize numeric variables
+#' @description This functions generates histograms and marks out mean and
+#' one standard deviation band around the mean for each numeric variable
+#' @details This function only run internally in VisX application because it depends on
+#'  reactive values from user input
 #'
-#' @param df_hist
+#' @param df_hist A wide-format data include all numeric variables to visualize
 #'
-#' @return
-#' @export
+#' @return Annotated histograms in numeric variable tab
 #' @import ggplot2
 #'
-#' @examples
+
 make_hist <- function(df_hist){
   p <- df_hist %>%
     pivot_longer(everything()) %>%
@@ -119,15 +137,17 @@ make_hist <- function(df_hist){
 
 ##### bar plots #####
 
-#' Function to make barplots
+#' Visualize categorical variables
+#' @description This functions generates barplots for each categorical variable
+#' @details This function only run internally in VisX application because it depends on
+#'  reactive values from user input
 #'
-#' @param df_bar
+#' @param df_bar A wide-format data include all categorical variables to visualize
 #'
-#' @return
-#' @export
+#' @return Barplots in categorical variable tab
 #' @import ggplot2
 #'
-#' @examples
+
 make_bar <- function(df_bar){
   p <- df_bar %>%
     pivot_longer(everything()) %>%

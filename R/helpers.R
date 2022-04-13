@@ -4,18 +4,22 @@
 # results :  if "html" or "latex"
 # the results will be displayed in html or latex format
 
-#' Create a table for correlation with significance
+
+#' Correlation matrix
+#' @description Calculate pairwise correlation matrix with significance
 #'
-#' @param x a data frame or matrix
-#' @param method spearman or pearson
-#' @param removeTriangle display correlation table as upper or lower trianglur matrix
-#' @param result output as none, html or latex
+#' @param x data frame or matrix
+#' @param method method to calculate correlation coefficient; spearman or pearson
+#' @param removeTriangle display correlation table as upper or lower triangular matrix
+#' @param result output format as none, html or latex
 #'
-#' @return correlation and significance of input data set
+#' @return Correlation coefficient and significance of correlation test between each pair of varaibles
 #' @export
 #' @import corrr
 #' @importFrom Hmisc rcorr
 #' @examples
+#' data(mtcars)
+#' corstars(mtcars, method = "spearman")
 corstars <-function(x, method=c("spearman", "pearson"), removeTriangle=c("lower"),
                     result=c("none", "html", "latex")){
   #Compute correlation matrix
@@ -63,14 +67,17 @@ corstars <-function(x, method=c("spearman", "pearson"), removeTriangle=c("lower"
 }
 
 
-#' Computed adjusted R-squared
+#' Adjusted R-squared
+#' @description Compute adjusted R-squared for each variable
+#' @details Adjusted R-squared is a measure of collinearity,
+#' defined as how one variable is linearly associated with all other variables in the data set.
+#' @param df data frame or matrix
 #'
-#' @param df a data frame or matrix
-#'
-#' @return a table with adjusted R squared of each variables verses all other variables
-#' @export
+#' @return A table with values of adjusted R squared of each variable
 #'
 #' @examples
+#' df <- data.frame(X1 = rnorm(100), X2 = rnorm(100), X3 = rnorm(100))
+#' get_r2j(df)
 get_r2j <- function(df) {
   r2_j <- numeric(ncol(df))
   for(j in 1:ncol(df)) {
