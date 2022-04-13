@@ -12,10 +12,16 @@
 #' Run the VisX application
 #'
 #' @description This function starts the VisX application for basic data pre-processing and variables selection
-#' @details The application interface will pop up after calling this function;
+#' @details This application currently supports files in csv format.
+#' @details Application interface will pop up after calling this function;
 #' data can be uploaded in that interface;
-#' close the interface or interrupt R to stop the application
-#' @return The application interface
+#' close the interface or interrupt R to stop the application.
+#'
+#' @return Histograms for continuous variables;
+#' @return Barplots for discrete variables;
+#' @return Correlation diagram;
+#' @return Variance inflation factors (VIFs) and adjusted R-squared;
+#' @return Spearman correlation coefficient and p values from spearman correlation test
 #'
 #' @export
 #' @import shiny

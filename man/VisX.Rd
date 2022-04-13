@@ -7,15 +7,25 @@
 VisX()
 }
 \value{
-The application interface
+Histograms for continuous variables;
+
+Barplots for discrete variables;
+
+Correlation diagram;
+
+Variance inflation factors (VIFs) and adjusted R-squared;
+
+Spearman correlation coefficient and p values from spearman correlation test
 }
 \description{
 This function starts the VisX application for basic data pre-processing and variables selection
 }
 \details{
-The application interface will pop up after calling this function;
+This application currently supports files in csv format.
+
+Application interface will pop up after calling this function;
 data can be uploaded in that interface;
-close the interface or interrupt R to stop the application
+close the interface or interrupt R to stop the application.
 }
 \examples{
 VisX()
