@@ -14,18 +14,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, echo=FALSE, message=FALSE}
 library(devtools)
 data("mtcars")
 ```
 
 # Introduction 
 
-The VisX application is composed of five tabs, corresponding two fives steps of data pre-processing or variable selection. Each tab consists of an input panel on the left side and an output panel on the right side. The contend of these panels are different across tabs, based on functionality each of them supports.v In the following sections, we will illustrate the VisX workflow using "mtcars" data as an example. This data is a built-in data set of R and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973--74 models). Please note that the original R dataset contains only numeric variable. For illustration puporses, we have created two categorical variables (vs_fct and am_fct) based on original dummy variables (vs and am). 
+The VisX application is composed of five tabs, corresponding two fives steps of data pre-processing or variable selection. Each tab consists of an input panel on the left side and an output panel on the right side. The content of these panels are different across tabs, based on functionality each of them supports. In the following sections, we will illustrate the VisX workflow using "mtcars" data as an example. This data is a built-in data set of R and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973--74 models). Please note that the original R dataset contains only numeric variable. For illustration purposes, we have created two categorical variables (vs_fct and am_fct) based on original dummy variables (vs and am). 
 
-# Uplaod data
+# Upload data
 
-The data tab, which is the first tab in VisX tab, supports uploading data from local directory and initializing variable sets for following analysis. This app supports only csv files at this point. 
+The data tab, which is the first tab of VisX, supports uploading data from local directory and initializing variable sets for following analysis. This app supports only csv files at this point. 
 
 As illustrated below, users can choose csv files from their own devices by clicking "Browse" on the left input panel. Once the data is uploaded, a list of variable names of all the columns in uploaded spreadsheet will appear in the left side panel. User can deselect variables not of interest so that they would be removed from the following analysis. "Initialize" button completes the initialization process, and a preview of the whole data set will appear on the right ouput panel. 
 
@@ -57,11 +57,6 @@ knitr::include_graphics("tab2-1.png")
 knitr::include_graphics("tab2-2.png")
 ```
 
-```{r, echo=FALSE, out.width = '100%', fig.cap="Reactive visual feedback"}
-knitr::include_graphics("tab2-3.png")
-```
-
-
 ## Categorical variables
 
 This tab presents barplot for each categorical variable in the dataset. It supports the following operations for pre-processing
@@ -69,13 +64,13 @@ This tab presents barplot for each categorical variable in the dataset. It suppo
 - Collapsing levels of existing categorical variables
 - Creating new categorical variable by dichotomization of numeric variables
 
-For collasping, user can first choose the variable to collapse from the dropdown manu at the top of left input panel. A list of all levels in this variable will appear reactively. User can then specify the levels to collapse and name the new category as needed. Barplots of the new variables will appear reactively in the "Transfomed variables" section at the bottom of right output panel. Below is an example of collapsing two categories of "am" into one overall category. Please note that this example is only for illustration purposes. In reality, we usually avoid single-level categorical variables. This operation is often used when there are too many levels in one single variable with small sample size within each level. 
+For collasping, user can first choose the variable to collapse from the dropdown manu at the top of left input panel. A list of all levels in this variable will appear reactively. User can then specify the levels to collapse and name the new category as needed. Barplots of the new variables will appear reactively in the "Transformed variables" section at the bottom of right output panel. Below is an example of collapsing two categories of "am" into one overall category. Please note that this example is only for illustration purposes. In reality, we usually avoid single-level categorical variables. This operation is often used when there are too many levels in one single variable with small sample size within each level. 
 
 ```{r, echo=FALSE, out.width = '100%', fig.cap="Collpasing"}
 knitr::include_graphics("tab3-1.png")
 ```
 
-For Dichotomization, user can forst specify the variable to dichotomize, and a slidebar of range of the corresponding numeric variable will show up reactively. User can then specify a cutoff point, and name the two new levels as needed. Barplots of the newly created categorical variables will also appear reactively in the "Transfomed variables" section at the bottom of right output panel. Below is an example of cutting weight by 3lbs. 
+For Dichotomization, user can first specify the variable to dichotomize, and a slide-bar of range of the corresponding numeric variable will show up reactively. User can then specify a cutoff point, and name the two new levels as needed. Barplots of the newly created categorical variables will also appear reactively in the "Transformed variables" section at the bottom of right output panel. Below is an example of cutting weight by 3lbs. 
 
 ```{r, echo=FALSE, out.width = '100%', fig.cap="Dichotomization"}
 knitr::include_graphics("tab3-2.png")
