@@ -15,7 +15,7 @@ Correlation diagram;
 
 Variance inflation factors (VIFs) and adjusted R-squared;
 
-Spearman correlation coefficient and p values from spearman correlation test
+Correlation coefficient and p values from correlation test
 }
 \description{
 This function starts the VisX application for basic data pre-processing and variables selection

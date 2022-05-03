@@ -21,7 +21,7 @@
 #' @return Barplots for discrete variables;
 #' @return Correlation diagram;
 #' @return Variance inflation factors (VIFs) and adjusted R-squared;
-#' @return Spearman correlation coefficient and p values from spearman correlation test
+#' @return Correlation coefficient and p values from correlation test
 #'
 #' @export
 #' @import shiny
@@ -108,6 +108,9 @@ ui <- function(request){
                              br(),
                              # minimum correlation
                              wellPanel(
+                               selectInput("typecor", "Type of correlation",
+                                           choices = c("spearman", "pearson")),
+                               # correlation threshold
                                sliderInput("min_cor", "Minimum |Correlation| Shown", min = 0, max = 1, value = .3),
                                # significance thresohold
                                radioButtons("sig", label = "Significance", choices = c(0.05, 0.1, "None"),selected = 0.05),
@@ -145,8 +148,7 @@ ui <- function(request){
                         tabPanel(title = "Information",
                                 p("VIF: Variance Inflation Factor; "),
                                 p("MDE: Marginal Detectible Effect with 80% power (slope);"),
-                                p("Correlations between variables using Spearman's method
-                                        (****: p<0.0001, ***: p<0.001, **: p<0.01), *:p<0.05)"),
+                                p("For correlation test, ****: p<0.0001, ***: p<0.001, **: p<0.01), *:p<0.05)"),
                                 verbatimTextOutput("info"))))))
 }
 
@@ -318,14 +320,14 @@ server <- function(input, output){
     # network plot
     output$networkplot <- renderPlot({
       df <- df_for_figure(df_lst)
-      tryCatch(network_plot_wsig(df, method = "spearman", sig.level = ifelse(input$sig!= "None", input$sig, -1),
+      tryCatch(network_plot_wsig(df, method = input$typecor, sig.level = ifelse(input$sig!= "None", input$sig, -1),
                           overlay = !input$all,
                           min_cor = input$min_cor, legend = TRUE, repel = TRUE,
                           label_size = 8),
                error = function(e){
                  ggplot()+
                    theme_void()+
-                   labs(title = "Failed to compute spearman correlation")+
+                   labs(title = "Failed to compute correlation")+
                    theme(title = element_text(size = 20))})
         }, width = 900, height = 900)
 
@@ -350,7 +352,7 @@ server <- function(input, output){
     # correlation
     output$corinfo <- renderText({
       df <- df_for_figure(df_lst)
-        tb_cor <- corstars(df) %>%
+        tb_cor <- corstars(df, method = input$typecor) %>%
             rownames_to_column(" ")
         # filter out empty column
         tb_cor <- tb_cor[, colSums(tb_cor=="")!=nrow(tb_cor)]
