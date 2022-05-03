@@ -126,7 +126,7 @@ ui <- function(request){
         mainPanel(
             tabsetPanel(id="tabs1",
                         # data
-                        tabPanel("Data", tableOutput("data")),
+                        tabPanel("Data", dataTableOutput("data")),
                         # distribution
                         tabPanel("Numeric variables",
                                  h4("Original variables"),
@@ -178,7 +178,7 @@ server <- function(input, output){
                            selected = bl_df() %>% clean_names(case = "none") %>% colnames())
     })
     ### dynamic output from initialized data
-    output$data <- renderTable({
+    output$data <- renderDataTable({
       if(is.null(init_df$init_df)){
           bl_df() %>% clean_names(case = "none")
       }
