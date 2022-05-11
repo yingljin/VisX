@@ -195,7 +195,7 @@ server <- function(input, output){
                   select(all_of(input$initial_selected))
                  df_lst$df_all <- df_lst$df_all[, sort(colnames(df_lst$df_all))]
                  df_lst$df_cat = df_lst$df_all
-                 #update_reactive_df(df_lst)
+                 update_reactive_df(df_lst)
                  })
 
     # numeric variable panel
