@@ -189,14 +189,14 @@ server <- function(input, output){
     df_lst <- reactiveValues(df_cat = NULL, df_num = NULL, options = NULL, default = NULL, remove = NULL, new_df_num = NULL, new_default = NULL)
 
     # from data panel: initialization
-    observeEvent(input$update_init,
-                 {df_lst$df_all = bl_df() %>%
-                   clean_names(case = "none") %>%
-                   select(all_of(input$initial_selected))
-                  df_lst$df_all <- df_lst$df_all[, sort(colnames(df_lst$df_all))]
-                  df_lst$df_cat = df_lst$df_all
-                  update_reactive_df(df_lst)
-                  })
+   observeEvent(input$update_init,
+                {df_lst$df_all = bl_df() %>%
+                  clean_names(case = "none") %>%
+                  select(all_of(input$initial_selected))
+                 df_lst$df_all <- df_lst$df_all[, sort(colnames(df_lst$df_all))]
+                 df_lst$df_cat = df_lst$df_all
+                 #update_reactive_df(df_lst)
+                 })
 
     # numeric variable panel
     ## univariate transformation
@@ -314,7 +314,7 @@ server <- function(input, output){
 
    # session info
     output$info <- renderPrint({
-        sessionInfo()
+      sessionInfo()
         })
 
     # network plot
