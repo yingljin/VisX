@@ -53,9 +53,26 @@ ui <- function(request){
                                      fileInput("bl_df", "Upload file", accept = ".csv"),
                                      uiOutput("initial_vars"),
                                      actionButton("init", "Initialize")),
+                    # numeric variables
+                    conditionalPanel(condition = "input.tabs1 == 'Numeric variables'",
+                                     uiOutput("vars_dist"),
+                                    # univariate transformation
+                                    h4("Univariate tranformation"),
+                                    wellPanel(selectInput("typetrans", "Type of transformation",
+                                                                  choices = c("log", "sqrt")),
+                                              actionButton("newtrans", "Transform variable(s)")),
+                                    # multivariate transformation
+                                    br(),
+                                    h4("Multivariate operation"),
+                                    wellPanel(selectInput("typeop", "Type of operation",
+                                              choices = c("Ratio (alphabetical)", "Ratio (reverse alphabetical)", "Mean")),
+                                              textInput("newvarname", "Name of new variable"),
+                                              actionButton("newop", "Create variable(s)"))),
+
+
                     br(),
                     bookmarkButton(),
-                    width = 2),
+                    width = 3),
 
                   # main panel
                   mainPanel(
@@ -64,7 +81,16 @@ ui <- function(request){
                                 tabPanel("Data",
                                          dataTableOutput("data"),
                                          span(textOutput("datacheck"),
-                                              style="color:red; font-size: 20px"))
+                                              style="color:red; font-size: 20px")),
+                                # histograms for numeric variables
+                                tabPanel("Numeric variables",
+                                         h4("Original variables"),
+                                         plotOutput("dist_org", inline = T),
+                                         h4("Transformed variables"),
+                                         plotOutput("dist_trans", inline = T)),
+
+                                # check
+                                tabPanel("Check", textOutput("check"))
                                 ),
 
                   )))
@@ -86,34 +112,54 @@ server <- function(input, output){
            validate("Invalid file; Please upload a .csv file")
     )})
 
+  # list of all reactive datasets
+  df_lst <- reactiveValues(df_all=NULL, var_type = NULL, df_trans=NULL)
+
   # data tab
   output$data <- renderDataTable({bl_df() %>% clean_names(case = "none")},
                                  options = list(pageLength=10,
                                                 scrollX = T))
   output$datacheck <- renderText({data_check(bl_df())})
   output$initial_vars <- renderUI({
-          checkboxGroupInput("initial_selected", "Select variables",
-                              choices = bl_df() %>% clean_names(case = "none") %>% colnames(),
-                             selected = bl_df() %>% clean_names(case = "none") %>% colnames())
+    names <- bl_df() %>% clean_names(case = "none") %>% colnames()
+    types <- sapply(bl_df(), class)
+    types <- factor(types,
+                    levels = c("numeric", "integer", "factor", "character"),
+                    labels = c("numeric", "numeric", "factor", "factor"))
+    lapply(names, function(x){
+      radioButtons(x, x, choices = c("remove", "numeric", "factor", "ordinal"),
+                  inline = T, selected = types[names==x])})
       })
-
-  # list of all reactive datasets
-  df_lst <- reactiveValues(df_all=NULL)
 
   # update data tab when initialized
   observeEvent(input$init,
-              {df_lst$df_all = bl_df() %>% clean_names(case = "none") %>%
-                  select(all_of(input$initial_selected))
-              output$data = renderDataTable({df_lst$df_all},
-                                               options = list(pageLength=10,
-                                                              scrollX = T))
-              output$datacheck = renderText({data_check(df_lst$df_all)})
+              {names <- bl_df() %>% clean_names(case = "none") %>% colnames()
+               opts <- lapply(names, function(x){input[[x]]})
+               vars_in <- names[opts!="remove"]
+                # remove unselected
+                df_lst$df_all = bl_df() %>% clean_names(case = "none") %>%
+                  select(all_of(vars_in))
+                # variable types
+                types <- sapply(df_lst$df_all, class)
+                types <- unlist(opts[names %in% vars_in])
+                df_lst$var_type <- types
+                # display
+                output$data = renderDataTable({df_lst$df_all},
+                                              options = list(pageLength=10,
+                                                            scrollX = T))
+                output$datacheck = renderText({data_check(df_lst$df_all)})
+                output$check = renderPrint(df_lst$var_type)
                  })
 
-
-
-
-
+  # numeric variable
+   output$vars_dist <- renderUI({
+       checkboxGroupInput("vars_dist", "Numeric variables",
+                          choices = colnames(df_lst$df_all)[df_lst$var_type=="numeric"])
+   })
+   output$dist_org <- renderPlot({
+        # separate original variables and newly created variables
+         make_hist(df_lst$df_all[, df_lst$var_type=="numeric"])},
+         height = 600, width = 1000)
 }
 
 
@@ -337,16 +383,7 @@ VisX <- function(){
    #                 df_lst$new_default = input$vars_cor})
    #
    #
-   #  # dynamic input panel for numeric variable tab (select variable for transformation)
-   #  output$vars_dist <- renderUI({
-   #    tryCatch(
-   #      checkboxGroupInput("vars_dist","Variables to transform",
-   #                         choices = c(df_lst$df_cat %>% select(-all_of(df_lst$remove)) %>% select(is.numeric) %>%
-   #                                       clean_names(case = "none") %>% colnames(),
-   #                                     sort(df_lst$remove[!grepl("_bi|_bin", df_lst$remove)]))),
-   #      error = function(e){h5("Plot is loading")}
-   #    )
-   #  })
+
    #
    #  # dynamic input panel for categorical variable tab
    #  ## binning
