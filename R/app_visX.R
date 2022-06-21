@@ -113,7 +113,9 @@ server <- function(input, output){
     )})
 
   # list of all reactive datasets
-  df_lst <- reactiveValues(df_all=NULL, var_type = NULL, df_trans=NULL)
+  df_lst <- reactiveValues(df_all=NULL, var_type=NULL,
+                           df_org=NULL, org_type=NULL,
+                           df_new=NULL, new_type=NULL)
 
   # data tab
   output$data <- renderDataTable({bl_df() %>% clean_names(case = "none")},
@@ -137,18 +139,18 @@ server <- function(input, output){
                opts <- lapply(names, function(x){input[[x]]})
                vars_in <- names[opts!="remove"]
                 # remove unselected
-                df_lst$df_all = bl_df() %>% clean_names(case = "none") %>%
+                df_lst$df_org = bl_df() %>% clean_names(case = "none") %>%
                   select(all_of(vars_in))
+                df_lst$df_all <- df_lst$df_org
                 # variable types
-                types <- sapply(df_lst$df_all, class)
+                types <- sapply(df_lst$df_org, class)
                 types <- unlist(opts[names %in% vars_in])
-                df_lst$var_type <- types
+                df_lst$org_type <- df_lst$var_type <- types
                 # display
-                output$data = renderDataTable({df_lst$df_all},
+                output$data = renderDataTable({df_lst$df_org},
                                               options = list(pageLength=10,
                                                             scrollX = T))
-                output$datacheck = renderText({data_check(df_lst$df_all)})
-                output$check = renderPrint(df_lst$var_type)
+                output$datacheck = renderText({data_check(df_lst$df_org)})
                  })
 
   # numeric variable
@@ -156,10 +158,56 @@ server <- function(input, output){
        checkboxGroupInput("vars_dist", "Numeric variables",
                           choices = colnames(df_lst$df_all)[df_lst$var_type=="numeric"])
    })
+   ## display original variables
    output$dist_org <- renderPlot({
-        # separate original variables and newly created variables
-         make_hist(df_lst$df_all[, df_lst$var_type=="numeric"])},
+         make_hist(df_lst$df_org[, df_lst$org_type=="numeric"])},
          height = 600, width = 1000)
+   ## transformations: univariate
+   observeEvent(input$newtrans,
+                {new_vars <- df_lst$df_all %>%
+                  mutate(across(all_of(input$vars_dist),
+                                .fns = as.formula(paste("~",input$typetrans, "(.x)")),
+                                .names = paste("{col}_", input$typetrans, sep = '')),
+                         .keep = "none")
+               df_lst$df_new <- bind_cols(df_lst$df_new, new_vars)
+               df_lst$new_type <- c(df_lst$new_type, rep("numeric", ncol(new_vars)))
+               df_lst$df_all <- bind_cols(df_lst$df_all, new_vars)
+               df_lst$var_type <- c(df_lst$var_type, rep("numeric", ncol(new_vars)))
+                              })
+   ## transformation: multivariate
+   observeEvent(input$newop,
+                {if(input$typeop == "Mean"){
+                  new_vars = apply(df_lst$df_all[, input$vars_dist], 1, mean)
+                }
+                 if(input$typeop == "Ratio (alphabetical)"){
+                    new_vars = df_lst$df_all[input$vars_dist[1]]/df_lst$df_all[input$vars_dist[2]]
+                 }
+                  if(input$typeop == "Ratio (reverse alphabetical)"){
+                    new_vars = df_lst$df_all[input$vars_dist[2]]/df_lst$df_all[input$vars_dist[1]]
+                  }
+                  colnames(new_vars) <- input$newvarname
+                  df_lst$df_new <- bind_cols(df_lst$df_new, new_vars)
+                  df_lst$new_type <- c(df_lst$new_type, "numeric")
+                  df_lst$df_all <- bind_cols(df_lst$df_all, new_vars)
+                  df_lst$var_type <- c(df_lst$var_type, "numeric")
+
+                })
+
+
+   ## display new variables
+   output$dist_trans <- renderPlot({
+     if(!is.null(df_lst$df_new)){
+       make_hist(df_lst$df_new)
+     }
+     else{
+       ggplot()+theme_void()+labs(title = "No variables transformed")+
+         theme(title = element_text(size = 20))
+     }},
+     height = 600, width = 1000
+     )
+   output$check <- renderPrint({df_lst$df_new})
+
+
 }
 
 
@@ -324,30 +372,7 @@ VisX <- function(){
    #
    #  # numeric variable panel
    #  ## univariate transformation
-   #  observeEvent(input$newtrans,
-   #               {df_lst$df_cat = df_lst$df_all %>%
-   #                   mutate(across(all_of(input$vars_dist),
-   #                                 .fns = as.formula(paste("~",input$typetrans, "(.x)")),
-   #                                 .names = paste("{col}_", input$typetrans, sep = '')))
-   #               df_lst$remove = sort(c(df_lst$remove, paste(input$vars_dist, "_",input$typetrans, sep = '')))
-   #               update_transform_df(df_lst)
-   #               })
    #
-   #  ## multivariate transformation: only for numeric variables
-   #  observeEvent(input$newop,
-   #               {if(input$typeop == "Mean"){
-   #                 df_lst$df_cat[input$newvarname] = apply(df_lst$df_cat[, input$vars_dist],
-   #                                                         1, mean)
-   #               }
-   #                if(input$typeop == "Ratio (alphabetical)"){
-   #                   df_lst$df_cat[input$newvarname] = df_lst$df_cat[input$vars_dist[1]]/df_lst$df_cat[input$vars_dist[2]]
-   #                }
-   #                 if(input$typeop == "Ratio (reverse alphabetical)"){
-   #                   df_lst$df_cat[input$newvarname] = df_lst$df_cat[input$vars_dist[2]]/df_lst$df_cat[input$vars_dist[1]]
-   #                 }
-   #                 df_lst$remove = sort(c(df_lst$remove, input$newvarname))
-   #                 update_transform_df(df_lst)
-   #               })
    #
    #  # categorical variable tab
    #  ## binning
