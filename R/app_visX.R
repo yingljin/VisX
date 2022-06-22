@@ -69,10 +69,44 @@ ui <- function(request){
                                               textInput("newvarname", "Name of new variable"),
                                               actionButton("newop", "Create variable(s)"))),
 
-
+                    # categorical variables
+                    conditionalPanel(condition = "input.tabs1=='Categorical variables'",
+                                     # bining
+                                     h4("Collapsing"),
+                                     wellPanel(
+                                      uiOutput("vars_bin"),
+                                      uiOutput("levels"),
+                                      textInput("newcat", "Name of new category"),
+                                      selectInput("binned_type", "Type of new variable",
+                                                  choices = list("nomial" = "factor",
+                                                                 "ordinal" = "ordinal")),
+                                      actionButton("cattrans", "Update")),
+                                     # Dichotomization?
+                                     h4("Dichotomization"),
+                                     wellPanel(
+                                       uiOutput("vars_bi"),
+                                       uiOutput("thres"),
+                                       textInput("high_lev", "Name higher level (greater or equal to threshold)"),
+                                       textInput("low_lev", "Name lower level (less than threshold)"),
+                                       selectInput("bi_type", "Type of new variable",
+                                                   choices = list("nomial" = "factor",
+                                                                  "ordinal" = "ordinal")),
+                                       actionButton("dichot", "Create variable"))),
+                    # panel for correlation input
+                    conditionalPanel(condition = "input.tabs1=='Network Plot of Correlation'" ,
+                                     uiOutput("vars_cor"),
+                                     actionButton("newvars_cor", "Update"),
+                                     br(),
+                                     # correlation threshold
+                                     sliderInput("min_cor", "Minimum correlation shown", min = 0, max = 1, value = .3),
+                                     # significance
+                                     radioButtons("signif", label = "Significance threshold",
+                                                  choices = c(0.05, 0.1, "none"),
+                                                  selected = "none")
+                                    ),
                     br(),
                     bookmarkButton(),
-                    width = 3),
+                    width = 2),
 
                   # main panel
                   mainPanel(
@@ -89,11 +123,23 @@ ui <- function(request){
                                          h4("Transformed variables"),
                                          plotOutput("dist_trans", inline = T)),
 
+                                # barplots for categorical variables
+                                tabPanel("Categorical variables",
+                                         h4("Original variables"),
+                                         plotOutput("bar_org", inline = T),
+                                         h4("Transformed variables"),
+                                         plotOutput("bar_trans", inline = T)),
+
+                                # correlation plot tab
+                                tabPanel(title = "Network Plot of Correlation",
+                                         plotOutput("npc")),
+
                                 # check
                                 tabPanel("Check", textOutput("check"))
-                                ),
 
-                  )))
+
+                  ))
+                  ))
 }
 
 
@@ -115,7 +161,9 @@ server <- function(input, output){
   # list of all reactive datasets
   df_lst <- reactiveValues(df_all=NULL, var_type=NULL,
                            df_org=NULL, org_type=NULL,
-                           df_new=NULL, new_type=NULL)
+                           df_new_num=NULL, new_type_num=NULL,
+                           df_new_cat=NULL, new_type_cat=NULL,
+                           check = NULL)
 
   # data tab
   output$data <- renderDataTable({bl_df() %>% clean_names(case = "none")},
@@ -129,8 +177,15 @@ server <- function(input, output){
                     levels = c("numeric", "integer", "factor", "character"),
                     labels = c("numeric", "numeric", "factor", "factor"))
     lapply(names, function(x){
-      radioButtons(x, x, choices = c("remove", "numeric", "factor", "ordinal"),
-                  inline = T, selected = types[names==x])})
+      # fluidRow(
+      #   tags$head(
+      #     tags$style(type="text/css", "label.control-label, .selectize-control.single{ display: table-cell; text-align: left; vertical-align: middle; } .form-group { display: table-row;}")),
+      # column(10,
+        selectInput(x, x, choices = list("remove" = "remove",
+                                         "numeric" = "numeric",
+                                         "nominal" = "factor",
+                                         "ordinal" = "ordinal"),
+                    selected = types[names==x])})
       })
 
   # update data tab when initialized
@@ -169,8 +224,8 @@ server <- function(input, output){
                                 .fns = as.formula(paste("~",input$typetrans, "(.x)")),
                                 .names = paste("{col}_", input$typetrans, sep = '')),
                          .keep = "none")
-               df_lst$df_new <- bind_cols(df_lst$df_new, new_vars)
-               df_lst$new_type <- c(df_lst$new_type, rep("numeric", ncol(new_vars)))
+               df_lst$df_new_num <- bind_cols(df_lst$df_new_num, new_vars)
+               df_lst$new_type_num <- c(df_lst$new_type_num, rep("numeric", ncol(new_vars)))
                df_lst$df_all <- bind_cols(df_lst$df_all, new_vars)
                df_lst$var_type <- c(df_lst$var_type, rep("numeric", ncol(new_vars)))
                               })
@@ -186,18 +241,16 @@ server <- function(input, output){
                     new_vars = df_lst$df_all[input$vars_dist[2]]/df_lst$df_all[input$vars_dist[1]]
                   }
                   colnames(new_vars) <- input$newvarname
-                  df_lst$df_new <- bind_cols(df_lst$df_new, new_vars)
-                  df_lst$new_type <- c(df_lst$new_type, "numeric")
+                  df_lst$df_new_num <- bind_cols(df_lst$df_new_num, new_vars)
+                  df_lst$new_type_num <- c(df_lst$new_type_num, "numeric")
                   df_lst$df_all <- bind_cols(df_lst$df_all, new_vars)
                   df_lst$var_type <- c(df_lst$var_type, "numeric")
 
                 })
-
-
    ## display new variables
    output$dist_trans <- renderPlot({
-     if(!is.null(df_lst$df_new)){
-       make_hist(df_lst$df_new)
+     if(!is.null(df_lst$df_new_num)){
+       make_hist(df_lst$df_new_num)
      }
      else{
        ggplot()+theme_void()+labs(title = "No variables transformed")+
@@ -205,7 +258,88 @@ server <- function(input, output){
      }},
      height = 600, width = 1000
      )
-   output$check <- renderPrint({df_lst$df_new})
+
+   # categorical variable tab
+   ## disaplay original variables
+   output$bar_org <- renderPlot({
+     df_plot <- df_lst$df_org[, df_lst$org_type!="numeric"]
+     df_plot <- mutate_all(df_plot, as.character)
+     make_bar(df_plot)},
+     height = 600, width = 1000)
+   ## bining
+   output$vars_bin <- renderUI({
+     checkboxGroupInput("vars_bin", "Variable to collapse",
+                        choices = colnames(df_lst$df_all)[df_lst$var_type!="numeric"])
+   })
+    output$levels <- renderUI({
+      checkboxGroupInput("lev", "Levels to collapse",
+                         choices = levels(as.factor(df_lst$df_all[, input$vars_bin])))
+    })
+    observeEvent(input$cattrans,{
+      new_var <- ifelse(df_lst$df_all[ , input$vars_bin] %in% input$lev,
+                        input$newcat, df_lst$df_all[ , input$vars_bin])
+      new_var <- data.frame(new_var)
+      colnames(new_var) <- paste(input$vars_bin, "_bin", sep = "")
+      df_lst$df_new_cat <- bind_cols(df_lst$df_new_cat, new_var)
+      df_lst$new_type_cat <- c(df_lst$new_type_cat, input$binned_type)
+      df_lst$df_all <- bind_cols(df_lst$df_all, new_var)
+      df_lst$var_type <- c(df_lst$var_type, input$binned_type)
+                  })
+   ## dichotomization
+   output$vars_bi <- renderUI({
+     checkboxGroupInput("vars_bi", "Variable to dichotomize",
+                        choices = colnames(df_lst$df_all)[df_lst$var_type=="numeric"])
+   })
+  output$thres <- renderUI({
+      sliderInput("thres_num", "Threshold",
+                  min = round(min(df_lst$df_all[, input$vars_bi], na.rm = T), 2),
+                  max = round(max(df_lst$df_all[, input$vars_bi], na.rm = T), 2),
+                  value = round(min(df_lst$df_all[, input$vars_bi], na.rm = T), 2),
+                  round = -1)
+  })
+  observeEvent(input$dichot,{
+    new_var <- ifelse(df_lst$df_all[ , input$vars_bi] <= input$thres_num,
+                      input$low_lev, input$high_lev)
+    new_var <- data.frame(new_var)
+    colnames(new_var) <- paste(input$vars_bi, "_bi", sep = "")
+    df_lst$df_new_cat <- bind_cols(df_lst$df_new_cat, new_var)
+    df_lst$new_type_cat <- c(df_lst$new_type_cat, input$bi_type)
+    df_lst$df_all <- bind_cols(df_lst$df_all, new_var)
+    df_lst$var_type <- c(df_lst$var_type, input$bi_type)
+  })
+  ## display new variables
+  output$bar_trans <- renderPlot({
+    if(!is.null(df_lst$df_new_cat)){
+      make_bar(df_lst$df_new_cat)
+    }
+    else{
+      ggplot()+theme_void()+labs(title = "No variables transformed")+
+        theme(title = element_text(size = 20))
+    }},
+    height = 800, width = 1000
+  )
+
+   # correlation diagram panel
+   output$vars_cor <- renderUI({
+       checkboxGroupInput("vars_cor", "Variables to visualise",
+                          choices =  colnames(df_lst$df_all),
+                          selected =  colnames(df_lst$df_org))
+       })
+   observeEvent(input$newvars_cor, {
+     df_cor <- df_lst$df_all[, input$vars_cor]
+     var_types <- df_lst$var_type[colnames(df_lst$df_all) %in% input$vars_cor]
+     cor_mats <- pairwise_cor(df_cor, var_types)
+     output$npc <- renderPlot({
+       npc_mixed_cor(cor_mats$cor_value, cor_mats$cor_type, cor_mats$cor_p,
+                     var_types, show_signif=input$signif!="none",
+                     sig.level = input$signif,
+                     min_cor = input$min_cor)
+            }, height = 600, width = 800)
+   })
+
+   # checks
+   output$check <- renderPrint({
+     df_lst$check})
 
 
 }
@@ -220,70 +354,9 @@ VisX <- function(){
 
 #### back up code #####
 
-    #  observeEvent(input$update_init,
-    #               {init_df$init_df = bl_df() %>%
-    #                 clean_names(case = "none") %>%
-    #                 select(all_of(input$initial_selected))})
-    #  ### dynamic input panel, reactive to data upload
-    #  output$initial_vars <- renderUI({
-    #      checkboxGroupInput("initial_selected", "Select variables",
-    #                          choices = bl_df() %>% clean_names(case = "none") %>% colnames(),
-    #                         selected = bl_df() %>% clean_names(case = "none") %>% colnames())
-    #  })
-    #  ### dynamic output from initialized data
-    #  output$data <- renderDataTable({
-    #    if(is.null(init_df$init_df)){
-    #        bl_df() %>% clean_names(case = "none")
-    #    }
-    #    else{init_df$init_df}
-    #  })
 
 
 
-
-
-
-
-
-            # Input panel for transformation of numeric variables
-            # conditionalPanel(condition = "input.tabs1=='Numeric variables'",
-            #                  uiOutput("vars_dist"),
-            #
-            #                  # univariate transformation
-            #                  h4("Univariate tranformation"),
-            #                  wellPanel(
-            #                  selectInput("typetrans", "Type of transformation",
-            #                              choices = c("log", "sqrt")),
-            #                  actionButton("newtrans", "Transform variable(s)")),
-            #                  # multivariate transformation
-            #                  br(),
-            #                  h4("Multivariate operation"),
-            #                  wellPanel(
-            #                  selectInput("typeop", "Type of operation",
-            #                              choices = c("Ratio (alphabetical)", "Ratio (reverse alphabetical)", "Mean")),
-            #                  textInput("newvarname", "Name of new variable"),
-            #                  actionButton("newop", "Create variable(s)"))),
-
-            # Input panel for collapsing categorical variables
-            # conditionalPanel(condition = "input.tabs1=='Categorical variables'",
-            #                  #h4("Note: operations in this tab is not reversible", style = "color:red"),
-            #
-            #                  # bining
-            #                  h4("Collapsing"),
-            #                  wellPanel(
-            #                  uiOutput("vars_bin"),
-            #                  uiOutput("levels"),
-            #                  textInput("newcat", "Name of new category"),
-            #                  actionButton("cattrans", "Update")),
-            #
-            #                  # Dichotomization?
-            #                  h4("Dichotomization"),
-            #                  wellPanel(
-            #                    uiOutput("vars_bi"),
-            #                    uiOutput("thres"),
-            #                    textInput("high_lev", "Name higher level (greater or equal to threshold)"),
-            #                    textInput("low_lev", "Name lower level (less than threshold)"),
-            #                    actionButton("dichot", "Create variable"))),
 
             # panel for correlation input
             # conditionalPanel(condition = "input.tabs1!='Numeric variables' && input.tabs1!='Data' && input.tabs1!='Categorical variables'" ,
@@ -307,20 +380,8 @@ VisX <- function(){
 
         # # Main panel
         # mainPanel(
-        #     tabsetPanel(id="tabs1",
-        #                 # data
-        #                 tabPanel("Data", dataTableOutput("data")),
-                        # distribution
-                        # tabPanel("Numeric variables",
-                        #          h4("Original variables"),
-                        #          plotOutput("dist_org", inline = T),
-                        #          h4("Transformed variables"),
-                        #          plotOutput("dist_trans", inline = T)),
-                        # tabPanel("Categorical variables",
-                        #          h4("Original variables"),
-                        #          plotOutput("bar_org", inline = T),
-                        #          h4("Transformed variables"),
-                        #          plotOutput("bar_trans", inline = T)),
+        #
+
                         # correlation plot
                         # tabPanel(title = "Correlation Structure Diagram", plotOutput("networkplot")),
                         # VIF, R2
@@ -337,106 +398,17 @@ VisX <- function(){
 
 
 #### Define server logic required to draw a histogram ####
-# server <- function(input, output){
-#
-#     ## data tab: set up data reactive to input
-#     ## bl_df is the data uploaded from external files
-#     ## init_df is initialized data
-#     bl_df <- reactive({
-#         req(input$bl_df)
-#         ext <- tools::file_ext(input$bl_df$name)
-#         switch(ext,
-#                csv = read.csv(input$bl_df$datapath),
-#                validate("Invalid file; Please upload a .csv file")
-#         )})
 
-    # reactive values containing numeric and categorical data separately
-    # and list of variable names to be contained on the side bar
-    # df_lst <- reactiveValues(df_all = NULL, df_num = NULL, df_cat = NULL)
-   #  opt_names
-   #
-
-   #
-   #  # define a set of reactive values
-   #  df_lst <- reactiveValues(df_cat = NULL, df_num = NULL, options = NULL, default = NULL, remove = NULL, new_df_num = NULL, new_default = NULL)
-   #
-   #  # from data panel: initialization
-   # observeEvent(input$update_init,
-   #              {df_lst$df_all = bl_df() %>%
-   #                clean_names(case = "none") %>%
-   #                select(all_of(input$initial_selected))
-   #               df_lst$df_all <- df_lst$df_all[, sort(colnames(df_lst$df_all))]
-   #               df_lst$df_cat = df_lst$df_all
-   #               update_reactive_df(df_lst)
-   #               })
-   #
-   #  # numeric variable panel
    #  ## univariate transformation
    #
    #
-   #  # categorical variable tab
-   #  ## binning
-   #  observeEvent(input$cattrans,
-   #               {new_vars <- paste(input$vars_bin, "_bin", sep = "")
-   #                df_lst$df_cat[ , new_vars] = ifelse(df_lst$df_cat[ , input$vars_bin] %in% input$lev, input$newcat, df_lst$df_cat[ , input$vars_bin])
-   #                df_lst$remove <- c(df_lst$remove, new_vars)
-   #                update_transform_df(df_lst)
-   #               })
+
    #
-   #  ## dichotomization
-   #  observeEvent(input$dichot,
-   #               {new_name <- paste(input$vars_to_dic, "_bi", sep = "")
-   #               df_lst$df_cat[ ,  new_name] = ifelse(df_lst$df_cat[ , input$vars_to_dic] >= input$thres_num,
-   #                                                    input$high_lev, input$low_lev)
-   #               df_lst$df_cat[ , new_name] = as.character(df_lst$df_cat[,  new_name])
-   #               df_lst$remove <- c(df_lst$remove, new_name)
-   #               update_transform_df(df_lst)
-   #               })
-   #
-   #  # correlation diagram panel
-   #  observeEvent(input$newvars_cor,
-   #               {if(sum(sapply(df_lst$df_cat, function(x){!is.numeric(x)}))>0){
-   #                   df_lst$new_df_num = df_lst$df_cat %>%
-   #                       dummy_cols(ignore_na = T, remove_most_frequent_dummy = F) %>%
-   #                       clean_names(case = "none") %>%
-   #                       select(is.numeric) %>%
-   #                       select(all_of(input$vars_cor))}
-   #                   else{
-   #                       df_lst$new_df_num = df_lst$df_cat %>%
-   #                           select(all_of(input$vars_cor))
-   #                       }
-   #                 df_lst$new_default = input$vars_cor})
-   #
-   #
+
 
    #
    #  # dynamic input panel for categorical variable tab
-   #  ## binning
-   #  output$vars_bin <- renderUI({
-   #    cat_var_names <- df_lst$df_cat %>%
-   #      # select(-all_of(df_lst$remove)) %>%
-   #      select(!is.numeric) %>%
-   #      clean_names(case = "none") %>% colnames()
-   #    selectInput("vars_bin", "Variable to collapse", cat_var_names)
-   #  })
-   #  output$levels <- renderUI({
-   #    tryCatch(
-   #    checkboxGroupInput("lev", "Levels to collapse", choices = levels(as.factor(df_lst$df_cat[, input$vars_bin]))),
-   #    error = function(e){h5("No Categorical variable in this data set")})
-   #  })
-   #
-   #  ## dichotomization
-   #  output$vars_bi <- renderUI({
-   #    num_var_names <- df_lst$df_cat %>% select(is.numeric) %>%
-   #      clean_names(case = "none") %>% colnames()
-   #    selectInput("vars_to_dic", "Variable to dichotomize", num_var_names)
-   #  })
-   #  output$thres <- renderUI({
-   #    sliderInput("thres_num", "Threshold", min = round(min(df_lst$df_cat[, input$vars_to_dic], na.rm = T), 2),
-   #                max = round(max(df_lst$df_cat[, input$vars_to_dic], na.rm = T), 2),
-   #                value = round(min(df_lst$df_cat[, input$vars_to_dic], na.rm = T), 2),
-   #                round = -1)
-   #  })
+
    #
    #  # dynamic input panel for correlation tabs
    #  output$vars_cor <- renderUI({
