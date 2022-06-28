@@ -152,7 +152,7 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
                aes(x = x, y = y, xend = xend, yend = yend,
                    alpha = proximity, size = proximity,
                    color = proximity))+
-    scale_color_gradientn(name = "PseudoR2", limits = c(0, 1),
+    scale_color_gradientn(name = "PseudoR", limits = c(0, 1),
                           colors = c("white", "darkorange"))+
     geom_point(data = points, aes(x,y, shape = var_type), size = 3,
                alpha=1, colour = "black")+
