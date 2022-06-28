@@ -26,6 +26,7 @@
 #' @importFrom kableExtra kable
 #' @importFrom kableExtra kable_styling
 #' @importFrom kableExtra row_spec
+#' @importFrom car vif
 #' @import knitr
 #' @import magrittr
 #' @import readr
@@ -86,8 +87,8 @@ ui <- function(request){
                                      wellPanel(
                                        uiOutput("vars_bi"),
                                        uiOutput("thres"),
-                                       textInput("high_lev", "Name higher level (greater or equal to threshold)"),
-                                       textInput("low_lev", "Name lower level (less than threshold)"),
+                                       textInput("high_lev", "Name higher level (greater than threshold)"),
+                                       textInput("low_lev", "Name lower level (less than/equal to threshold)"),
                                        selectInput("bi_type", "Type of new variable",
                                                    choices = list("nomial" = "factor",
                                                                   "ordinal" = "ordinal")),
@@ -243,6 +244,7 @@ server <- function(input, output){
    observeEvent(input$newop,
                 {if(input$typeop == "Mean"){
                   new_vars = apply(df_lst$df_all[, input$vars_dist], 1, mean)
+                  new_vars = data.frame(new_vars)
                 }
                  if(input$typeop == "Ratio (alphabetical)"){
                     new_vars = df_lst$df_all[input$vars_dist[1]]/df_lst$df_all[input$vars_dist[2]]
@@ -346,11 +348,19 @@ server <- function(input, output){
                      sig.level = input$signif,
                      min_cor = input$min_cor)
             }, height = 600, width = 800)
-     # matrix
+     # association matrix
      cor_mat_star <- corstars(cor_mats$cor_value, cor_mats$cor_p)
      cor_mat_star <- rownames_to_column(cor_mat_star, var = " ")
      output$cormat <-  renderDataTable({cor_mat_star},
                                        options = list(scrollX = T))
+     # inter-correlation statistics
+     # df_vif <- data.frame(df_cor, y=rnorm(nrow(df_cor)))
+     # vifs <- round(vif(lm(y ~ ., data = df_vif)), 2)
+     # r2_j <- round(get_r2j(df_cor), 2)
+     # output$check <- vifs
+     #stat_tb <- data.frame("VIF" = vifs, R2j = r2_j)
+     #output$
+     #output$stat <- renderDataTable({stat_tb})
    })
 
    # checks
@@ -371,164 +381,6 @@ VisX <- function(){
 #### back up code #####
 
 
-
-
-
-            # panel for correlation input
-            # conditionalPanel(condition = "input.tabs1!='Numeric variables' && input.tabs1!='Data' && input.tabs1!='Categorical variables'" ,
-            #                  uiOutput("vars_cor"),
-            #                  actionButton("newvars_cor", "Update"),
-            #                  br(),
-            #                  br(),
-            #                  # minimum correlation
-            #                  wellPanel(
-            #                    selectInput("typecor", "Type of correlation",
-            #                                choices = c("spearman", "pearson")),
-            #                    # correlation threshold
-            #                    sliderInput("min_cor", "Minimum |Correlation| Shown", min = 0, max = 1, value = .3),
-            #                    # significance thresohold
-            #                    radioButtons("sig", label = "Significance", choices = c(0.05, 0.1, "None"),selected = 0.05),
-            #                    # whether or not show all significance or only large correaltion
-            #                    checkboxInput("all", "Show all significant association", value = F))),
-
-            # bookmark button
-
-
-        # # Main panel
-        # mainPanel(
-        #
-
-                        # correlation plot
-                        # tabPanel(title = "Correlation Structure Diagram", plotOutput("networkplot")),
-                        # VIF, R2
-                        # tabPanel(title = "VisX Information", htmlOutput("varinfo")),
-                        # correlation table
-                        # tabPanel(title = "Correlation", htmlOutput("corinfo")),
-                        # information
-                        # tabPanel(title = "Information",
-                        #         p("VIF: Variance Inflation Factor; "),
-                        #         p("MDE: Marginal Detectible Effect with 80% power (slope);"),
-                        #         p("For correlation test, ****: p<0.0001, ***: p<0.001, **: p<0.01), *:p<0.05)"),
-                        #         verbatimTextOutput("info")))))
-
-
-
-#### Define server logic required to draw a histogram ####
-
-   #  ## univariate transformation
-   #
-   #
-
-   #
-
-
-   #
-   #  # dynamic input panel for categorical variable tab
-
-   #
-   #  # dynamic input panel for correlation tabs
-   #  output$vars_cor <- renderUI({
-   #    if(is.null(df_lst$new_default)){
-   #      default_vars <- df_lst$default
-   #    }
-   #    else{
-   #      default_vars <- df_lst$new_default
-   #    }
-   #      checkboxGroupInput("vars_cor", "Variables to visualise",
-   #                         choices =  df_lst$options,
-   #                         selected = default_vars)
-   #      })
-   #
-   #
-   # # session info
-   #  output$info <- renderPrint({
-   #    sessionInfo()
-   #      })
-   #
-   #  # network plot
-   #  output$networkplot <- renderPlot({
-   #    df <- df_for_figure(df_lst)
-   #    tryCatch(network_plot_wsig(df, method = input$typecor, sig.level = ifelse(input$sig!= "None", input$sig, -1),
-   #                        overlay = !input$all,
-   #                        min_cor = input$min_cor, legend = TRUE, repel = TRUE,
-   #                        label_size = 8),
-   #             error = function(e){
-   #               ggplot()+
-   #                 theme_void()+
-   #                 labs(title = "Failed to compute correlation")+
-   #                 theme(title = element_text(size = 20))})
-   #      }, width = 900, height = 900)
-   #
-   #  # variables info   : vif, r2j
-   #  output$varinfo <- renderText({
-   #    if(is.null(df_lst$new_df_num)){
-   #      df <- df_lst$df_num %>%
-   #        mutate(y = rnorm(nrow(df_lst$df_num)))
-   #    }
-   #    else{
-   #      df <- df_lst$new_df_num %>%
-   #        mutate(y = rnorm(nrow(df_lst$new_df_num)))
-   #    }
-   #    vifs <- round(car::vif(lm(y ~ ., data = df)), 1)
-   #    r2_j <- round(get_r2j(df %>% dplyr::select(-y)), 2)
-   #    cbind("VIF" = vifs,
-   #            R2j = r2_j)  %>% as.data.frame() %>%
-   #          kable(digits = 2, format = "html") %>%
-   #          kable_styling(c("striped", "condensed"), full_width = F)
-   #      })
-   #
-   #  # correlation
-   #  output$corinfo <- renderText({
-   #    df <- df_for_figure(df_lst)
-   #      tb_cor <- corstars(df, method = input$typecor) %>%
-   #          rownames_to_column(" ")
-   #      # filter out empty column
-   #      tb_cor <- tb_cor[, colSums(tb_cor=="")!=nrow(tb_cor)]
-   #      # shorten columns names and rownames
-   #      new_name <- gsub("_", "\n", colnames(tb_cor))
-   #      colnames(tb_cor) <- new_name
-   #      #tb_cor[, 1] <- gsub("_", "\n", tb_cor[, 1])
-   #      # knit
-   #      tb_cor %>%
-   #          kable(digits = 2, format = "html", align = "c") %>%
-   #          kable_styling(c("striped", "condensed"), full_width = F, font_size = 12) %>%
-   #          row_spec(0, extra_css = "transform: rotate(-70deg); height: 100px; text-align: center; vertical-align: middle")
-   #      })
-   #
-   #  # Distribution of numeric variables
-   #  output$dist_org <- renderPlot({
-   #    # separate original variables and newly created variables
-   #     make_hist(init_df$init_df %>% select_if(is.numeric))},
-   #    height = 600, width = 1000)
-   #
-   #  output$dist_trans <- renderPlot({
-   #    # separate original variables and newly created variables
-   #    tryCatch(make_hist(df_lst$df_cat %>% select_if(is.numeric) %>% select(any_of(df_lst$remove))),
-   #    error = function(e){
-   #      ggplot()+
-   #        theme_void()+
-   #        labs(title = "No variables transformed")+
-   #        theme(title = element_text(size = 20))})}, height = 600, width = 1000)
-   #
-   #  # Distribution of categorical variables
-   #  output$bar_org <- renderPlot({
-   #    tryCatch(make_bar(init_df$init_df %>% select_if(is.character)),
-   #             error = function(e){
-   #               ggplot()+
-   #                 theme_void()+
-   #                 labs(title = "No categorical variables in the data set")+
-   #                 theme(title = element_text(size = 20))})
-   #  }, height = 400, width = 1000)
-   #
-   #  output$bar_trans<- renderPlot({
-   #    tryCatch(make_bar(df_lst$df_cat %>% select_if(is.character) %>% select(any_of(df_lst$remove))),
-   #             error = function(e){
-   #               ggplot()+
-   #                 theme_void()+
-   #                 labs(title = "No variables transformed")+
-   #                 theme(title = element_text(size = 20))})
-   #  }, height = 400, width = 1000)
-   #
    #
    #  # bookmark
    #  onBookmark(function(state){
