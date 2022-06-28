@@ -5,16 +5,16 @@
 \title{Correlation matrix}
 \usage{
 corstars(
-  x,
-  method = c("spearman", "pearson"),
+  cor_value,
+  cor_p,
   removeTriangle = c("lower"),
   result = c("none", "html", "latex")
 )
 }
 \arguments{
-\item{x}{data frame or matrix}
+\item{cor_value}{association matrix}
 
-\item{method}{method to calculate correlation coefficient; spearman or pearson}
+\item{cor_p}{significance of association test}
 
 \item{removeTriangle}{display correlation table as upper or lower triangular matrix}
 
@@ -28,5 +28,8 @@ Calculate pairwise correlation matrix with significance
 }
 \examples{
 data(mtcars)
-corstars(mtcars, method = "spearman")
+types <- rep("numeric", ncol(mtcars))
+test <- pairwise_cor(mtcars, types)
+corstars <-function(test$cor_value, test$cor_p)
+
 }

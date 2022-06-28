@@ -8,38 +8,38 @@
 #' Correlation matrix
 #' @description Calculate pairwise correlation matrix with significance
 #'
-#' @param x data frame or matrix
-#' @param method method to calculate correlation coefficient; spearman or pearson
+#' @param cor_value association matrix
+#' @param cor_p significance of association test
 #' @param removeTriangle display correlation table as upper or lower triangular matrix
 #' @param result output format as none, html or latex
 #'
 #' @return Correlation coefficient and significance of correlation test between each pair of varaibles
 #' @export
-#' @import corrr
-#' @importFrom Hmisc rcorr
 #' @examples
 #' data(mtcars)
-#' corstars(mtcars, method = "spearman")
-corstars <-function(x, method=c("spearman", "pearson"), removeTriangle=c("lower"),
+#' types <- rep("numeric", ncol(mtcars))
+#' test <- pairwise_cor(mtcars, types)
+#' corstars <-function(test$cor_value, test$cor_p)
+#'
+corstars <-function(cor_value, cor_p,
+                    removeTriangle=c("lower"),
                     result=c("none", "html", "latex")){
-  #Compute correlation matrix
 
-  x <- as.matrix(x)
-  correlation_matrix<-rcorr(x, type=method[1])
-  R <- correlation_matrix$r # Matrix of correlation coeficients
-  p <- correlation_matrix$P # Matrix of p-value
+
+  R <- cor_value # Matrix of correlation coeficients
+  p <- cor_p # Matrix of p-value
 
   ## Define notions for significance levels; spacing is important.
   mystars <- ifelse(p < .0001, "****", ifelse(p < .001, "*** ", ifelse(p < .01, "**  ", ifelse(p < .05, "*   ", "    "))))
 
   ## trunctuate the correlation matrix to two decimal
-  R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1]
+  R <- round(R, 2)
 
   ## build a new matrix that includes the correlations with their apropriate stars
-  Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x))
+  Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(R))
   diag(Rnew) <- paste(diag(R), " ", sep="")
-  rownames(Rnew) <- colnames(x)
-  colnames(Rnew) <- paste(colnames(x), "", sep="")
+  rownames(Rnew) <- colnames(R)
+  colnames(Rnew) <- paste(colnames(R), "", sep="")
 
   ## remove upper triangle of correlation matrix
   if(removeTriangle[1]=="upper"){

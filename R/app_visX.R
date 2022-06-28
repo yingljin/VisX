@@ -134,6 +134,16 @@ ui <- function(request){
                                 tabPanel(title = "Network Plot of Correlation",
                                          plotOutput("npc")),
 
+                                # statistics tab
+                                tabPanel(title = "Statistics",
+                                         dataTableOutput("stat")),
+
+                                # correlation matrix tab
+                                tabPanel(title = "Correlation matrix",
+                                         dataTableOutput("cormat")),
+
+
+
                                 # check
                                 tabPanel("Check", textOutput("check"))
 
@@ -329,12 +339,18 @@ server <- function(input, output){
      df_cor <- df_lst$df_all[, input$vars_cor]
      var_types <- df_lst$var_type[colnames(df_lst$df_all) %in% input$vars_cor]
      cor_mats <- pairwise_cor(df_cor, var_types)
+     # network plot
      output$npc <- renderPlot({
        npc_mixed_cor(cor_mats$cor_value, cor_mats$cor_type, cor_mats$cor_p,
                      var_types, show_signif=input$signif!="none",
                      sig.level = input$signif,
                      min_cor = input$min_cor)
             }, height = 600, width = 800)
+     # matrix
+     cor_mat_star <- corstars(cor_mats$cor_value, cor_mats$cor_p)
+     cor_mat_star <- rownames_to_column(cor_mat_star, var = " ")
+     output$cormat <-  renderDataTable({cor_mat_star},
+                                       options = list(scrollX = T))
    })
 
    # checks
