@@ -1,16 +1,12 @@
-# x is a matrix containing the data
-# method : correlation method. "pearson"" or "spearman"" is supported
-# removeTriangle : remove upper or lower triangle
-# results :  if "html" or "latex"
-# the results will be displayed in html or latex format
 
-
+#### correlation matrix #####
 #' Correlation matrix
-#' @description Calculate pairwise correlation matrix with significance
+#' @description Calculate pairwise correlation matrix with significance marked by stars.
+#' Columns and rows are grouped by variable type
 #'
 #' @param cor_value association matrix
 #' @param cor_p significance of association test
-#' @param removeTriangle display correlation table as upper or lower triangular matrix
+#' @param var_type type of variables that correlation and association is calculated for
 #' @param result output format as none, html or latex
 #'
 #' @return Correlation coefficient and significance of correlation test between each pair of varaibles
@@ -19,11 +15,10 @@
 #' data(mtcars)
 #' types <- rep("numeric", ncol(mtcars))
 #' test <- pairwise_cor(mtcars, types)
-#' corstars <-function(test$cor_value, test$cor_p)
+#' type <- c("numeric", "factor",  rep("numeric", 5), rep("factor", 2), rep("ordinal", 2))
+#' corstars <-function(test$cor_value, test$cor_p, type)
 #'
-corstars <-function(cor_value, cor_p,
-                    removeTriangle=c("lower"),
-                    result=c("none", "html", "latex")){
+corstars <-function(cor_value, cor_p, var_type){
 
 
   R <- cor_value # Matrix of correlation coeficients
@@ -41,32 +36,25 @@ corstars <-function(cor_value, cor_p,
   rownames(Rnew) <- colnames(R)
   colnames(Rnew) <- paste(colnames(R), "", sep="")
 
-  ## remove upper triangle of correlation matrix
-  if(removeTriangle[1]=="upper"){
-    Rnew <- as.matrix(Rnew)
-    Rnew[upper.tri(Rnew, diag = TRUE)] <- ""
-    Rnew <- as.data.frame(Rnew)
-    Rnew <- cbind(Rnew[1:length(Rnew)-1])
+  ## order rows and columns by variable type
+  var_type <- factor(var_type, levels = c("numeric", "factor", "ordinal"))
+  idx <- order(var_type)
+  Rnew <- Rnew[idx, idx]
 
-  }
+  ## remove lower triangle of correlation matrix and empty row and columns
+  Rnew[lower.tri(Rnew, diag = TRUE)] <- ""
+  Rnew <- as.data.frame(Rnew)
+  Rnew <- Rnew[1:length(Rnew)-1, 2:ncol(Rnew)]
 
-  ## remove lower triangle of correlation matrix
-  else if(removeTriangle[1]=="lower"){
-    Rnew <- as.matrix(Rnew)
-    Rnew[lower.tri(Rnew, diag = TRUE)] <- ""
-    Rnew <- as.data.frame(Rnew)
-    Rnew <- cbind(Rnew[1:length(Rnew)-1,])
-  }
+  ## index for group rows and columns
+  row_id <- var_type[idx][1:length(var_type)-1]
+  col_id <- var_type[idx][-1]
 
-  ## remove last column and return the correlation matrix
-  if (result[1]=="none") return(Rnew)
-  else{
-    if(result[1]=="html") print(xtable(Rnew), type="html")
-    else print(xtable(Rnew), type="latex")
-  }
+  return(list(Rnew=Rnew, row_id=row_id, col_id=col_id))
 }
 
 
+##### statistics #####
 #' Adjusted R-squared
 #' @description Compute adjusted R-squared for each variable
 #' @details Adjusted R-squared is a measure of collinearity,

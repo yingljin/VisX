@@ -4,19 +4,14 @@
 \alias{corstars}
 \title{Correlation matrix}
 \usage{
-corstars(
-  cor_value,
-  cor_p,
-  removeTriangle = c("lower"),
-  result = c("none", "html", "latex")
-)
+corstars(cor_value, cor_p, var_type)
 }
 \arguments{
 \item{cor_value}{association matrix}
 
 \item{cor_p}{significance of association test}
 
-\item{removeTriangle}{display correlation table as upper or lower triangular matrix}
+\item{var_type}{type of variables that correlation and association is calculated for}
 
 \item{result}{output format as none, html or latex}
 }
@@ -24,12 +19,14 @@ corstars(
 Correlation coefficient and significance of correlation test between each pair of varaibles
 }
 \description{
-Calculate pairwise correlation matrix with significance
+Calculate pairwise correlation matrix with significance marked by stars.
+Columns and rows are grouped by variable type
 }
 \examples{
 data(mtcars)
 types <- rep("numeric", ncol(mtcars))
 test <- pairwise_cor(mtcars, types)
-corstars <-function(test$cor_value, test$cor_p)
+type <- c("numeric", "factor",  rep("numeric", 5), rep("factor", 2), rep("ordinal", 2))
+corstars <-function(test$cor_value, test$cor_p, type)
 
 }

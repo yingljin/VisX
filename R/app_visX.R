@@ -25,7 +25,8 @@
 #' @importFrom fastDummies dummy_cols
 #' @importFrom kableExtra kable
 #' @importFrom kableExtra kable_styling
-#' @importFrom kableExtra row_spec
+#' @importFrom kableExtra pack_rows
+#' @importFrom kableExtra add_header_above
 #' @importFrom car vif
 #' @import knitr
 #' @import magrittr
@@ -135,15 +136,13 @@ ui <- function(request){
                                 tabPanel(title = "Network Plot of Correlation",
                                          plotOutput("npc")),
 
-                                # statistics tab
-                                tabPanel(title = "Statistics",
-                                         dataTableOutput("stat")),
-
                                 # correlation matrix tab
                                 tabPanel(title = "Correlation matrix",
-                                         dataTableOutput("cormat")),
+                                         htmlOutput("cormat")),
 
-
+                                # statistics tab
+                                tabPanel(title = "Statistics",
+                                         htmlOutput("stat")),
 
                                 # check
                                 tabPanel("Check", textOutput("check"))
@@ -188,10 +187,6 @@ server <- function(input, output){
                     levels = c("numeric", "integer", "factor", "character"),
                     labels = c("numeric", "numeric", "factor", "factor"))
     lapply(names, function(x){
-      # fluidRow(
-      #   tags$head(
-      #     tags$style(type="text/css", "label.control-label, .selectize-control.single{ display: table-cell; text-align: left; vertical-align: middle; } .form-group { display: table-row;}")),
-      # column(10,
         selectInput(x, x, choices = list("remove" = "remove",
                                          "numeric" = "numeric",
                                          "nominal" = "factor",
@@ -348,16 +343,46 @@ server <- function(input, output){
                      sig.level = input$signif,
                      min_cor = input$min_cor)
             }, height = 600, width = 800)
-     # association matrix
-     cor_mat_star <- corstars(cor_mats$cor_value, cor_mats$cor_p)
+     # association matrix for display
+     format_cor <- corstars(cor_mats$cor_value, cor_mats$cor_p, var_types)
+     cor_mat_star <- format_cor$Rnew
      cor_mat_star <- rownames_to_column(cor_mat_star, var = " ")
-     output$cormat <-  renderDataTable({cor_mat_star},
-                                       options = list(scrollX = T))
+     row_id <- factor(format_cor$row_id,
+                      levels <- c("numeric", "factor", "ordinal"),
+                      labels <- c("numeric", "nominal", "ordinal"))
+     row_id <- droplevels(row_id)
+     col_id <- as.character(format_cor$col_id)
+     col_id <- c(" ", as.character(col_id))
+     col_id <- factor(col_id,
+                      levels <- c(" ", "numeric", "factor", "ordinal"),
+                      labels <- c(" ", "numeric", "nominal", "ordinal"))
+     col_id <- droplevels(col_id)
+     output$cormat <-  renderText({
+       cor_mat_star %>%
+         kable(escape = F) %>%
+         kable_styling(full_width = F) %>%
+         pack_rows(index = table(row_id)) %>%
+         add_header_above(table(col_id))
+         })
+
      # inter-correlation statistics
-     # df_vif <- data.frame(df_cor, y=rnorm(nrow(df_cor)))
-     # vifs <- round(vif(lm(y ~ ., data = df_vif)), 2)
+     df_vif <- mutate(df_cor, y=rnorm(nrow(df_cor)))
+     vifs <- round(vif(lm(y ~ ., data = df_vif)), 2)
+     output$stat <- renderText({
+       tb <- data.frame(vifs)
+       colnames(tb)<- c("GVIF", "DF", "Adjusted GVIF")
+       tb %>%
+         mutate(type = factor(var_types,
+                              levels <- c("numeric", "factor", "ordinal"),
+                              labels <- c("numeric", "nominal", "ordinal"))) %>%
+         relocate(type, .before = 1) %>%
+         arrange(type) %>%
+         kable(escape = F) %>%
+         kable_styling(full_width = F)
+       })
+
      # r2_j <- round(get_r2j(df_cor), 2)
-     # output$check <- vifs
+     # df_lst$check <- data.frame("VIF" = vifs, R2j = r2_j)
      #stat_tb <- data.frame("VIF" = vifs, R2j = r2_j)
      #output$
      #output$stat <- renderDataTable({stat_tb})
