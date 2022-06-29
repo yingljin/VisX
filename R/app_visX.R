@@ -388,6 +388,34 @@ server <- function(input, output){
      #output$stat <- renderDataTable({stat_tb})
    })
 
+   # bookmark
+    onBookmark(function(state){
+      state$values$currentdata <- bl_df
+      state$values$current_df_all <- df_lst$df_all
+      state$values$current_df_org <- df_lst$df_org
+      state$values$current_df_new_num <- df_lst$df_new_num
+      state$values$current_df_new_cat <- df_lst$df_new_cat
+      state$values$current_var_type <- df_lst$var_type
+      state$values$current_org_type <- df_lst$org_type
+      state$values$current_new_type_num <- df_lst$new_type_num
+      state$values$current_new_type_cat <- df_lst$new_type_cat
+    })
+
+    onRestore(function(state){
+      bl_df <- state$values$currentdata
+      df_lst$df_all <- state$values$current_df_all
+      df_lst$df_org <- state$values$current_df_org
+      df_lst$df_new_num <- state$values$current_df_new_num
+      df_lst$df_new_cat <- state$values$current_df_new_cat
+      df_lst$var_type <- state$values$current_var_type
+      df_lst$org_type <- state$values$current_org_type
+      df_lst$new_type_num <- state$values$current_new_type_num
+      df_lst$new_type_cat <- state$values$current_new_type_cat
+    })
+
+    setBookmarkExclude(c("init", "newvars_cor", "newtrans", "newop", "cattrans", "dichot"))
+
+
    # checks
    output$check <- renderPrint({
      df_lst$check})
@@ -401,45 +429,4 @@ server <- function(input, output){
 VisX <- function(){
   shinyApp(ui = ui, server = server, enableBookmarking = "server")
 }
-
-
-#### back up code #####
-
-
-   #
-   #  # bookmark
-   #  onBookmark(function(state){
-   #    state$values$currentdata <- bl_df
-   #    state$values$current_init_df <- init_df$init_df
-   #    state$values$currentdf_all <- df_lst$df_all
-   #    state$values$currentdf_cat <- df_lst$df_cat
-   #    state$values$currentdf_num <- df_lst$df_num
-   #    state$values$current_default <- df_lst$default
-   #    state$values$current_options <- df_lst$options
-   #    state$values$current_remove <- df_lst$remove
-   #    state$values$current_new_df_num <- df_lst$new_df_num
-   #    state$values$current_new_default <- df_lst$new_default
-   #  })
-   #
-   #  onRestore(function(state){
-   #    bl_df <- state$values$currentdata
-   #    init_df$init_df <- state$values$current_init_df
-   #    df_lst$df_all <- state$values$currentdf_all
-   #    df_lst$df_cat <- state$values$currentdf_cat
-   #    df_lst$df_num <- state$values$currentdf_num
-   #    df_lst$default <- state$values$current_default
-   #    df_lst$options <- state$values$current_options
-   #    df_lst$remove <- state$values$current_remove
-   #    df_lst$new_df_num <- state$values$current_new_df_num
-   #    df_lst$new_default <- state$values$current_new_default
-   #  })
-   #
-   #  setBookmarkExclude(c("update_init", "newvars_cor", "newtrans", "newop"))
-
-# }
-
-
-# Run the application
-
-
 

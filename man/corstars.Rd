@@ -12,11 +12,10 @@ corstars(cor_value, cor_p, var_type)
 \item{cor_p}{significance of association test}
 
 \item{var_type}{type of variables that correlation and association is calculated for}
-
-\item{result}{output format as none, html or latex}
 }
 \value{
-Correlation coefficient and significance of correlation test between each pair of varaibles
+Correlation coefficient and significance of correlation test between each pair of variables,
+as well as variable type corresponding to rows and columns for display in shiny app
 }
 \description{
 Calculate pairwise correlation matrix with significance marked by stars.

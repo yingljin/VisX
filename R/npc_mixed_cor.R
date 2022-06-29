@@ -156,7 +156,8 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
                           colors = c("white", "darkorange"))+
     geom_point(data = points, aes(x,y, shape = var_type), size = 3,
                alpha=1, colour = "black")+
-    scale_shape_manual(name = "Variable type", values = c(1, 2, 5))
+    scale_shape_manual(name = "Variable type", values = c(1, 2, 5),
+                       labels = c("nominal", "numeric",  "ordinal"))
   # add significance level
   if(show_signif){
     npc <- npc+

@@ -7,9 +7,9 @@
 #' @param cor_value association matrix
 #' @param cor_p significance of association test
 #' @param var_type type of variables that correlation and association is calculated for
-#' @param result output format as none, html or latex
 #'
-#' @return Correlation coefficient and significance of correlation test between each pair of varaibles
+#' @return Correlation coefficient and significance of correlation test between each pair of variables,
+#' as well as variable type corresponding to rows and columns for display in shiny app
 #' @export
 #' @examples
 #' data(mtcars)
