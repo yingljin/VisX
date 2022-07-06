@@ -36,6 +36,8 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
                            show_signif = FALSE,
                            legend = TRUE, repel = TRUE, label_size = 5,
                            overlay = TRUE){
+
+  var_type <- relevel(as.factor(var_type), ref = "numeric")
   ## A few checks
   if(min_cor < 0 || min_cor > 1){
     stop("min_cor must be a value ranging from zero to one.")
@@ -157,7 +159,7 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
     geom_point(data = points, aes(x,y, shape = var_type), size = 3,
                alpha=1, colour = "black")+
     scale_shape_manual(name = "Variable type", values = c(1, 2, 5),
-                       labels = c("nominal", "numeric",  "ordinal"))
+                       labels = c("numeric", "nominal",  "ordinal"))
   # add significance level
   if(show_signif){
     npc <- npc+

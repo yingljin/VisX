@@ -55,24 +55,47 @@ corstars <-function(cor_value, cor_p, var_type){
 
 
 ##### statistics #####
-#' Adjusted R-squared
-#' @description Compute adjusted R-squared for each variable
-#' @details Adjusted R-squared is a measure of collinearity,
+#' R-squared
+#' @description Compute R-squared for each variable versus all other covariates
+#' @details R-squared is a measure of collinearity,
 #' defined as how one variable is linearly associated with all other variables in the data set.
-#' @param df data frame or matrix
+#' @param df data frame
+#' @param type type corresponding to columns in df
 #'
-#' @return A table with values of adjusted R squared of each variable
+#' @importFrom nnet multinom
+#' @importFrom DescTools PseudoR2
+#'
+#' @return A vector with values of R squared of each variable
 #'
 #' @examples
 #' df <- data.frame(X1 = rnorm(100), X2 = rnorm(100), X3 = rnorm(100))
-#' get_r2j(df)
-get_r2j <- function(df) {
-  r2_j <- numeric(ncol(df))
-  for(j in 1:ncol(df)) {
-    r2_j[j] <- summary(lm(df[,j] ~ as.matrix(df[,-j])))$r.squared
-  }
-  r2_j
-}
+#' get_r2j(df, rep("numeric", 3))
 
+get_r2 <- function(df, type) {
+
+  r2 <- numeric(ncol(df))
+  vars <- colnames(df)
+  for(i in seq_along(r2)){
+    # formula
+    f <- as.formula(paste(vars[i], "~ ."))
+    # numeric
+    if(type[i] == "numeric"){
+      r2[i] <- summary(lm(f, df))$r.squared
+    }
+    # factor
+    else if(type[i] == "factor"){
+      mult_fit <- multinom(f, data = df, model = T)
+      r2[i] <- PseudoR2(mult_fit, which = "Nagelkerke")
+
+    }
+    # ordinal
+    else if(type[i] == "ordinal"){
+      df[, i] <- as.numeric(as.factor(df[, i]))
+      r2[i] <- summary(lm(f, df))$r.squared
+    }
+  }
+
+  return(r2)
+}
 
 

@@ -27,6 +27,7 @@
 #' @importFrom kableExtra kable_styling
 #' @importFrom kableExtra pack_rows
 #' @importFrom kableExtra add_header_above
+#' @importFrom kableExtra scroll_box
 #' @importFrom car vif
 #' @import knitr
 #' @import magrittr
@@ -79,9 +80,9 @@ ui <- function(request){
                                       uiOutput("vars_bin"),
                                       uiOutput("levels"),
                                       textInput("newcat", "Name of new category"),
-                                      selectInput("binned_type", "Type of new variable",
-                                                  choices = list("nomial" = "factor",
-                                                                 "ordinal" = "ordinal")),
+                                      radioButtons("binned_type", "Type of new variable",
+                                                   choices = list("nomial" = "factor",
+                                                                  "ordinal" = "ordinal")),
                                       actionButton("cattrans", "Update")),
                                      # Dichotomization?
                                      h4("Dichotomization"),
@@ -90,12 +91,12 @@ ui <- function(request){
                                        uiOutput("thres"),
                                        textInput("high_lev", "Name higher level (greater than threshold)"),
                                        textInput("low_lev", "Name lower level (less than/equal to threshold)"),
-                                       selectInput("bi_type", "Type of new variable",
+                                       radioButtons("bi_type", "Type of new variable",
                                                    choices = list("nomial" = "factor",
                                                                   "ordinal" = "ordinal")),
                                        actionButton("dichot", "Create variable"))),
                     # panel for correlation input
-                    conditionalPanel(condition = "input.tabs1=='Network Plot of Correlation'" ,
+                    conditionalPanel(condition = "input.tabs1=='Network Plot of Correlation and Association'" ,
                                      uiOutput("vars_cor"),
                                      actionButton("newvars_cor", "Update"),
                                      br(),
@@ -133,7 +134,7 @@ ui <- function(request){
                                          plotOutput("bar_trans", inline = T)),
 
                                 # correlation plot tab
-                                tabPanel(title = "Network Plot of Correlation",
+                                tabPanel(title = "Network Plot of Correlation and Association",
                                          plotOutput("npc")),
 
                                 # correlation matrix tab
@@ -275,7 +276,7 @@ server <- function(input, output){
      height = 600, width = 1000)
    ## bining
    output$vars_bin <- renderUI({
-     checkboxGroupInput("vars_bin", "Variable to collapse",
+     selectInput("vars_bin", "Variable to collapse",
                         choices = colnames(df_lst$df_all)[df_lst$var_type!="numeric"])
    })
     output$levels <- renderUI({
@@ -294,7 +295,7 @@ server <- function(input, output){
                   })
    ## dichotomization
    output$vars_bi <- renderUI({
-     checkboxGroupInput("vars_bi", "Variable to dichotomize",
+     selectInput("vars_bi", "Variable to dichotomize",
                         choices = colnames(df_lst$df_all)[df_lst$var_type=="numeric"])
    })
   output$thres <- renderUI({
@@ -323,7 +324,7 @@ server <- function(input, output){
       ggplot()+theme_void()+labs(title = "No variables transformed")+
         theme(title = element_text(size = 20))
     }},
-    height = 800, width = 1000
+    height = 600, width = 1000
   )
 
    # correlation diagram panel
@@ -342,50 +343,46 @@ server <- function(input, output){
                      var_types, show_signif=input$signif!="none",
                      sig.level = input$signif,
                      min_cor = input$min_cor)
-            }, height = 600, width = 800)
+            }, height = 1000, width = 1000)
      # association matrix for display
      format_cor <- corstars(cor_mats$cor_value, cor_mats$cor_p, var_types)
      cor_mat_star <- format_cor$Rnew
      cor_mat_star <- rownames_to_column(cor_mat_star, var = " ")
      row_id <- factor(format_cor$row_id,
-                      levels <- c("numeric", "factor", "ordinal"),
-                      labels <- c("numeric", "nominal", "ordinal"))
+                      levels = c("numeric", "factor", "ordinal"),
+                      labels = c("numeric", "nominal", "ordinal"))
      row_id <- droplevels(row_id)
      col_id <- as.character(format_cor$col_id)
      col_id <- c(" ", as.character(col_id))
      col_id <- factor(col_id,
-                      levels <- c(" ", "numeric", "factor", "ordinal"),
-                      labels <- c(" ", "numeric", "nominal", "ordinal"))
+                      levels = c(" ", "numeric", "factor", "ordinal"),
+                      labels = c(" ", "numeric", "nominal", "ordinal"))
      col_id <- droplevels(col_id)
      output$cormat <-  renderText({
        cor_mat_star %>%
          kable(escape = F) %>%
-         kable_styling(full_width = F) %>%
+         kable_styling("condensed", full_width = F) %>%
          pack_rows(index = table(row_id)) %>%
-         add_header_above(table(col_id))
+         add_header_above(table(col_id)) %>%
+         scroll_box(width = "100%", height = "1000px")
          })
 
      # inter-correlation statistics
      df_vif <- mutate(df_cor, y=rnorm(nrow(df_cor)))
      vifs <- round(vif(lm(y ~ ., data = df_vif)), 2)
+     r2 <- get_r2(df_cor, var_types)
+     r2 <- round(r2, 2)
+     var_labs <- factor(var_types, levels = c("numeric", "factor", "ordinal"),
+                        labels = c("numeric", "nominal", "ordinal"))
      output$stat <- renderText({
-       tb <- data.frame(vifs)
-       colnames(tb)<- c("GVIF", "DF", "Adjusted GVIF")
-       tb %>%
-         mutate(type = factor(var_types,
-                              levels <- c("numeric", "factor", "ordinal"),
-                              labels <- c("numeric", "nominal", "ordinal"))) %>%
-         relocate(type, .before = 1) %>%
-         arrange(type) %>%
+       tb <- data.frame(vifs, r2)
+       colnames(tb)<- c("GVIF", "DF", "Adjusted GVIF", "R-squared")
+       tb[order(var_labs), ] %>%
          kable(escape = F) %>%
-         kable_styling(full_width = F)
+         kable_styling(full_width = F) %>%
+         pack_rows(index = table(var_labs)) %>%
+         scroll_box(width = "100%", height = "1000px")
        })
-
-     # r2_j <- round(get_r2j(df_cor), 2)
-     # df_lst$check <- data.frame("VIF" = vifs, R2j = r2_j)
-     #stat_tb <- data.frame("VIF" = vifs, R2j = r2_j)
-     #output$
-     #output$stat <- renderDataTable({stat_tb})
    })
 
    # bookmark
