@@ -55,7 +55,8 @@ ui <- function(request){
                     conditionalPanel(condition = "input.tabs1 == 'Data'",
                                      fileInput("bl_df", "Upload file", accept = ".csv"),
                                      uiOutput("initial_vars"),
-                                     actionButton("init", "Initialize")),
+                                     actionButton("init", "Initialize"),
+                                     h5("Note: Re-initialization may override previous operations")),
                     # numeric variables
                     conditionalPanel(condition = "input.tabs1 == 'Numeric variables'",
                                      uiOutput("vars_dist"),
@@ -146,7 +147,23 @@ ui <- function(request){
                                          htmlOutput("stat")),
 
                                 # check
-                                tabPanel("Check", textOutput("check"))
+                                tabPanel(title = "Note",
+                                         h4("Supported variable tabs:"),
+                                         p("Numeric: continous variable"),
+                                         p("Nominal: unorded discrete variable"),
+                                         p("Ordinal: ordered discrete varaible"),
+
+                                         h4("Correlation and association:"),
+                                         p("Numeric vs Numeric: Spearman correlation and Spearman correlation test"),
+                                         p("Nominal vs Numeric/Nominal/Ordinal: PseudoR (square-root of Pseudo R-squared) and p-value from mulitnominal regression"),
+                                         p("Ordinal vs  Numeric/Ordinal: GKgamma and GKgamma correlation test"),
+                                         p("For correlation test, ****: p<0.0001, ***: p<0.001, **: p<0.01), *:p<0.05)"),
+
+                                         h4("Statistics:"),
+                                         h5("R-squared:"),
+                                         p("Numeric/Ordinal: R-squared from multiple linear regression"),
+                                         p("Nominal: Pseudo R-squared from multinominal regression")
+                                        )
 
 
                   ))
@@ -173,8 +190,7 @@ server <- function(input, output){
   df_lst <- reactiveValues(df_all=NULL, var_type=NULL,
                            df_org=NULL, org_type=NULL,
                            df_new_num=NULL, new_type_num=NULL,
-                           df_new_cat=NULL, new_type_cat=NULL,
-                           check = NULL)
+                           df_new_cat=NULL, new_type_cat=NULL)
 
   # data tab
   output$data <- renderDataTable({bl_df() %>% clean_names(case = "none")},
@@ -412,10 +428,12 @@ server <- function(input, output){
 
     setBookmarkExclude(c("init", "newvars_cor", "newtrans", "newop", "cattrans", "dichot"))
 
-
-   # checks
-   output$check <- renderPrint({
-     df_lst$check})
+   # Notes
+   # output$note <- renderText({
+   #   "Supported variable types"
+   #   HTML("<ul><li>Numeric</li><li>Nominal</li><li>Ordinal</li></ul>")
+   #
+   #  })
 
 
 }
