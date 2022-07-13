@@ -1,3 +1,5 @@
+#### correlation/association of a pair of variables ####
+
 test_that("A pair of variables", {
 
   # data
@@ -21,9 +23,12 @@ test_that("A pair of variables", {
   expect_lte(cor1[[3]], 1)
   expect_gte(cor2[[3]], 0)
   expect_lte(cor2[[3]], 1)
+
+  # both numeric variables
+  expect_error(pari_cor(data, c("numeric", "numeric")))
 })
 
-
+##### pariwise correlation/association #####
 
 test_that("Data frame", {
   df <- data.frame(x = rnorm(10),  y = rbinom(10, 1, 0.5),
@@ -40,6 +45,6 @@ test_that("Data frame", {
   # expect_gte(cor_df$cor_value[cor_df$cor_type=="pseudoR2"], 0)
   # expect_gte(cor_df$cor_value[cor_df$cor_type!="pseudoR2"], -1)
   # expect_lte(cor_df$cor_value, 1)
-  expect_equal(cor_df$cor_type[1:3, 1:3], cor_type)
+  expect_setequal(cor_df$cor_type[1:3, 1:3], cor_type)
 
-})
+ })

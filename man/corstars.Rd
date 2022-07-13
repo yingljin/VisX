@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpers.R
 \name{corstars}
 \alias{corstars}
-\title{Correlation matrix}
+\title{Correlation and association matrix}
 \usage{
 corstars(cor_value, cor_p, var_type)
 }

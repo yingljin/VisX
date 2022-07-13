@@ -1,6 +1,6 @@
 
 #### correlation matrix #####
-#' Correlation matrix
+#' Correlation and association matrix
 #' @description Calculate pairwise correlation matrix with significance marked by stars.
 #' Columns and rows are grouped by variable type
 #'

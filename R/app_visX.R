@@ -201,8 +201,8 @@ server <- function(input, output){
     names <- bl_df() %>% clean_names(case = "none") %>% colnames()
     types <- sapply(bl_df(), class)
     types <- factor(types,
-                    levels = c("numeric", "integer", "factor", "character"),
-                    labels = c("numeric", "numeric", "factor", "factor"))
+                    levels = c("numeric", "integer", "factor", "character", "logical", "NULL"),
+                    labels = c("numeric", "numeric", "factor", "factor", "factor", "factor"))
     lapply(names, function(x){
         selectInput(x, x, choices = list("remove" = "remove",
                                          "numeric" = "numeric",
