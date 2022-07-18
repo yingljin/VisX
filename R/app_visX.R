@@ -118,7 +118,7 @@ ui <- function(request){
                                 # data
                                 tabPanel("Data",
                                          dataTableOutput("data"),
-                                         span(textOutput("datacheck"),
+                                         span(htmlOutput("datacheck"),
                                               style="color:red; font-size: 20px")),
                                 # histograms for numeric variables
                                 tabPanel("Numeric variables",

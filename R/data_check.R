@@ -18,8 +18,8 @@ data_check <- function(df){
   if(length(empty_name)>0){
     empty_name <- paste(empty_name, collapse = ", ")
     mes1 = paste("Warning:", empty_name, "missing for all observations")
-    warning(mes1)
   }
+  else{mes1 = ""}
 
   # check for columns with no variation
   identical_col <- apply(df, 2, function(x)length(unique(x)))
@@ -28,7 +28,10 @@ data_check <- function(df){
   if(length(identical_name)>0){
     identical_name <- paste(identical_name, collapse = ", ")
     mes2 = paste("Warning:", identical_name, "with same value for all observations")
-    warning(mes2)
   }
+  else(mes2 = "")
+
+  mes = paste(mes1, "<br/>", mes2)
+  warning(mes)
 }
 
