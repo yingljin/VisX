@@ -390,6 +390,7 @@ server <- function(input, output){
      r2 <- round(r2, 2)
      var_labs <- factor(var_types, levels = c("numeric", "factor", "ordinal"),
                         labels = c("numeric", "nominal", "ordinal"))
+     var_labs <- droplevels(var_labs)
      output$stat <- renderText({
        tb <- data.frame(vifs, r2)
        colnames(tb)<- c("GVIF", "DF", "Adjusted GVIF", "R-squared")
