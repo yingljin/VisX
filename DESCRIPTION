@@ -1,7 +1,7 @@
 Package: VisX
 Type: Shiny Web Application
 Title: Visual interactive model selection
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(person("Ying", "Jin", email = "ying.jin@cuanschutz.edu", role = "cre"),
              person("Ryan", "Peterson", email = "ryan.a.peterson@cuanschutz.edu", role = "aut"),
              person("Carsten", "Goerg", email = "carsten.goerg@cuanschutz.edu", role = "aut"))

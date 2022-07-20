@@ -61,7 +61,7 @@ ui <- function(request){
                     conditionalPanel(condition = "input.tabs1 == 'Numeric variables'",
                                      uiOutput("vars_dist"),
                                     # univariate transformation
-                                    h4("Univariate tranformation"),
+                                    h4("Univariate transformation"),
                                     wellPanel(selectInput("typetrans", "Type of transformation",
                                                                   choices = c("log", "sqrt")),
                                               actionButton("newtrans", "Transform variable(s)")),
@@ -139,7 +139,7 @@ ui <- function(request){
                                          plotOutput("npc")),
 
                                 # correlation matrix tab
-                                tabPanel(title = "Correlation matrix",
+                                tabPanel(title = "Correlation and association matrix",
                                          htmlOutput("cormat")),
 
                                 # statistics tab
@@ -385,6 +385,7 @@ server <- function(input, output){
 
      # inter-correlation statistics
      df_vif <- mutate(df_cor, y=rnorm(nrow(df_cor)))
+     df_vif <- mutate_at(df_vif, which(var_types!="numeric"), as.factor)
      vifs <- round(vif(lm(y ~ ., data = df_vif)), 2)
      r2 <- get_r2(df_cor, var_types)
      r2 <- round(r2, 2)

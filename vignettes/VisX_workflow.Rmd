@@ -16,97 +16,167 @@ knitr::opts_chunk$set(
 
 ```{r setup, echo=FALSE, message=FALSE}
 library(devtools)
+library(cowplot)
+library(magick)
 data("mtcars")
 ```
 
 # Introduction 
 
-The VisX application is composed of five tabs, corresponding two fives steps of data pre-processing or variable selection. Each tab consists of an input panel on the left side and an output panel on the right side. The content of these panels are different across tabs, based on functionality each of them supports. In the following sections, we will illustrate the VisX workflow using "mtcars" data as an example. This data is a built-in data set of R and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973--74 models). Please note that the original R dataset contains only numeric variable. For illustration purposes, we have created two categorical variables (vs_fct and am_fct) based on original dummy variables (vs and am). 
+The VisX application includes five tabs, supporting operations of data pre-processing or variable selection. Each tab consists of an input panel on the left side and an output panel on the right side. In the following sections, we will illustrate the VisX workflow using "mtcars" data as an example. This data is a built-in data set of R and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973--74 models). A more detailed description of this data can be found at https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html. 
 
-# Upload data
+# Upload and initialization
 
-The data tab, which is the first tab of VisX, supports uploading data from local directory and initializing variable sets for following analysis. This app supports only csv files at this point. 
+The data tab, which is the first tab of VisX, allows user to upload data file from local directory and initializing variable sets for following analysis. The app currently supports only csv files. 
 
-As illustrated below, users can choose csv files from their own devices by clicking "Browse" on the left input panel. Once the data is uploaded, a list of variable names of all the columns in uploaded spreadsheet will appear in the left side panel. User can deselect variables not of interest so that they would be removed from the following analysis. "Initialize" button completes the initialization process, and a preview of the whole data set will appear on the right ouput panel. 
-
-```{r, echo=FALSE, out.width = '100%', fig.cap="Data tab"}
-knitr::include_graphics("tab1.png")
+```{r, echo=FALSE, out.width = '100%', fig.cap="Upload"}
+knitr::include_graphics("tab1-1.png")
 ```
 
+After data is uploaded, a preview will appear reactively in the output panel. On the left input panel, user can specify either to remove a variable from the dataset if it is not of interest, or specify the type of each variable (numeric, nominal or ordinal). This is important because the type of variable determines the correlation or association measures used in the NPCA tab (for more details, please see Section 3). 
+
+```{r, echo=FALSE, out.width = '100%', fig.cap="Initialization"}
+knitr::include_graphics("tab1-2.png")
+```
+
+If the dataset includes variables with no variation or all missing values, this will cause failure in the calculation of correlation and association measures. VisX will detect these columns and issue warnings below data preview as follows. In this case, the best practice is to remove such columns.
+
+```{r, echo=FALSE, out.width = '100%', fig.cap="Warning messages. fake_col and fake_col2 are fake variables created for demonstration."}
+knitr::include_graphics("tab1-3.png")
+```
 
 # Pre-preocessing
 
-The following two tabs supports operations on data pre-processing for numeric and categorical variables respectively. 
+The following two tabs, numeric variables and categorical variables, support basic operations for data pre-processing. Please note that for illustration purposes, we have specified the original variable cyl	(number of cylinders) as nominal, and vs (V-shaped or straight engine), am (automatic or manual transmission), gear (number of forward gears) and carb (Number of carburetors) as ordinal. 
 
 ## Numeric variables
 
-This tab presents histograms for each numeric variable in the dataset, where mean and one standard deviation around mean marked out respectively with solid and dashed red lines. It also supports the following operations for pre-processing:
+This tab presents histograms for each numeric variable in the dataset, where mean and one standard deviation around mean marked out respectively with solid and dashed red lines. In the example below, distribution of the six numeric variables in mtcars are displayed. 
 
-- Univariate transformation: log/square-root
-- Multivariate transformation: mean/ratio. Ratio can only be implemented on two variables. 
-
-The left input panel provides a list of names of all the variables in the dataset. It is reactive to not only previous data initialization, but also operations from users to create new variables, meaning the new variables user created will also appear on the left input panel. The visual feedback of newly created variables will appear below in the "Transformed variables" section, where distribution of new variables will be presented in the same way as original variables. 
-
-Below are examples of log transformation and creating ratios. 
-
-```{r, echo=FALSE, out.width = '100%', fig.cap="Log transformation"}
+```{r, echo=FALSE, out.width = '100%', fig.cap="Distribution of original numeric varaibles"}
 knitr::include_graphics("tab2-1.png")
 ```
 
-```{r, echo=FALSE, out.width = '100%', fig.cap="Creating ratio of two variables"}
+For a single numeric variables, this tab supports log and square-root transformation under the "Univariate transformation" section. Below is an example of log-transforming two variables (mpg and disp). Users can select all variables to transform and type of transformation on the left input panel. 
+
+```{r, echo=FALSE, out.width="30%", fig.align='center'}
 knitr::include_graphics("tab2-2.png")
+```
+
+After clicking the "Transform variable(s)" button, histograms of new variables will show up reactively on the right side, below original variables. VisX will name the new variable by adding the type of transformation after the original variable names (e.g. disp_log). 
+
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
+knitr::include_graphics("tab2-3.png")
+```
+
+
+This tab also supports creation of composite variables, including ratio of two variables and mean of a set of variables. Below is an example of  
+Below we present an example of creating ratio of hp (gross horsepower) and wt (weight). User can select variables for numerator and denominator in the same variable list as before: 
+
+```{r, echo=FALSE, out.width="40%", fig.align='center'}
+knitr::include_graphics("tab2-4-1.png")
+```
+
+However, the type of operation and the name of new composite variable are now specified under "Multivariate operation" section: 
+
+```{r, echo=FALSE, out.width="40%", fig.align='center'}
+knitr::include_graphics("tab2-4-2.png")
+```
+
+After clicking the "Create variable(s)" button, histograms of new composite variable will appear reactively on the right side, below original variables. 
+
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
+knitr::include_graphics("tab2-5.png")
 ```
 
 ## Categorical variables
 
-This tab presents barplot for each categorical variable in the dataset. It supports the following operations for pre-processing
+This tab presents barplot for each categorical variable in the dataset. As is presented below, the output panel shows distribution of one nominal variable and four ordinal variables.
 
-- Collapsing levels of existing categorical variables
-- Creating new categorical variable by dichotomization of numeric variables
-
-For collasping, user can first choose the variable to collapse from the dropdown manu at the top of left input panel. A list of all levels in this variable will appear reactively. User can then specify the levels to collapse and name the new category as needed. Barplots of the new variables will appear reactively in the "Transformed variables" section at the bottom of right output panel. Below is an example of collapsing two categories of "am" into one overall category. Please note that this example is only for illustration purposes. In reality, we usually avoid single-level categorical variables. This operation is often used when there are too many levels in one single variable with small sample size within each level. 
-
-```{r, echo=FALSE, out.width = '100%', fig.cap="Collpasing"}
+```{r, echo=FALSE, out.width="100%", fig.align='center'}
 knitr::include_graphics("tab3-1.png")
 ```
 
-For Dichotomization, user can first specify the variable to dichotomize, and a slide-bar of range of the corresponding numeric variable will show up reactively. User can then specify a cutoff point, and name the two new levels as needed. Barplots of the newly created categorical variables will also appear reactively in the "Transformed variables" section at the bottom of right output panel. Below is an example of cutting weight by 3lbs. 
+For an existing categorical variable, this tabs supports binning existing levels into a new levels, which is particularly useful when a variable can take may different value with small sample size at each value. Below we present an example of binning the "carb" variable (number of carburetors). 
 
-```{r, echo=FALSE, out.width = '100%', fig.cap="Dichotomization"}
+All operations are done under the "Collapsing" section on the left input panel. User can select the variable to operate on, and a list of all unique values will show up reactively under "Levels to collapse". User can then select all the values to bin, specify a name of the new binned level, and specify whether the new binned variable should be coded as nominal or ordinal. 
+
+In this example, cars with 6 or 8 carburetors are collapsed into a single level of "6+". 
+
+```{r, echo=FALSE, out.width="40%", fig.align='center'}
 knitr::include_graphics("tab3-2.png")
 ```
 
 
-Please note that the left input panel is also reactive to user operation, meaning the newly created categorical variables will appear in the input list under "variables to collapse" at the top left corner. Additional operations can be implemented iteratively on these variables as well. 
+By clicking the "Update" button, the new variable is created and its barplot appears below the original barplots. VisX names the new variable automatically by attaching "bin" after the original variable name. 
 
-# Correlation
-
-The following three tabs present some basic information for variable selection. In "Correlation Structure Diagram" tab, the inter-correlation between variables is presented in a network. "VisX information" provides statistics of mutli-collinearity, and "Correlation" presents the whole pairwise correlation matrix. 
-
-## Correlation diagram
-
-In the left input panel, a list of variables names is presented, including original variables as well as the new variables created previously by the user. Selected variables will be included in the correlation diagram on right output panel. The thickness of edges represents value of Spearman correlation coefficient, where correlation with categorical variables are calculated by creating dummy variables corresponding to each level. A black line overlaying such edges will show up if the correlation is also significant by Spearman correlation test. Variables that are strongly correlated are also clustered closer to each other in 2D space.
-
-By default, the diagram displays all original variables, and set the majority level of categorical variables as reference level. However, that can be changed by selecting/deselecting from input variable list. Below is an example of using log of displacement (disp) instead of original displacement : 
-
-
-```{r, echo=FALSE, out.width = '100%', fig.cap="Correlation diagram"}
-knitr::include_graphics("tab4-1.png")
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
+knitr::include_graphics("tab3-3.png")
 ```
 
-In addition, this tab also allows users to reset visualization parameters, such as threshold to display for correlation coefficient and p values from correlation tests. Below shows an example of increasing correlation threshold on the same set of variables as the figure above. After increasing minimum correlation to 80%, much fewer edges appear in the diagram.
+This tab also supports create a new binary variable based on numeric variables in the dataset. Relevant operations are implemented under the "Dichotomization" section on the left. User can select a numeric variable to dichotomize, and the threshold bar will be updated reactively to the range of chosen variable. User can then choose the threshold for dchotomization, name the to new levels and specify the type of new binary variable. 
 
-```{r, echo=FALSE, out.width = '100%', fig.cap="Correlation coefficient threshold"}
+Below is an example of dichotomizing the "wt" (weight) variable into "heavy" and "light" levels. 
+
+```{r, echo=FALSE, out.width="40%", fig.align='center'}
+knitr::include_graphics("tab3-4.png")
+```
+
+By clicking the "Creat variable" button, the new variable is created and its barplot appears below the original barplots. VisX names the new variable automatically by attaching "bi" after the original variable name. 
+
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
+knitr::include_graphics("tab3-5.png")
+```
+
+# Network plot of correlation an association (NPCA)
+
+The next tab presents a diagram for pairwise similarity between all variables currently in the dataset, which is the major advance from the previous version. In this new diagram, measure and test of association/correlation between a pair of variables is determined by their types, specifically as follows:
+
+- nominal vs numeric, nominal or ordinal: Pseudo $R^2$ and p value from univariate multinomial regression
+- ordinal vs ordinal or numeric: GK gamma and GK gamma correlation test
+- numeric vs numeric: Spearman correlation and Spearman correlation test
+
+The use of different types of variable and correlation/association measures allows us to treat variable properly, instead of arbitrarily creating numeric dummy variables for nominal variables. The visualization scheme has also been updated with the addition of this new feature, which is explained in the example below:
+
+```{r, echo=FALSE, out.width="100%", fig.align='center'}
+knitr::include_graphics("tab4-1.png")
+```
+In NPCA, each variable is represented as a point in 2-D space, with their type indicated by point shape. As in the figure above, numeric variables are represend by circles. The one nominal variables we specified in the first tab (cyl) is triangle, and the four ordinal variables(vs, am, gear and carb) are diamonds. Position of each variable is determined by their similarity between other variables by CMD scale, so that similar variables are closer to each other. 
+
+We also include two different color scales for different type of correlation/association measures. The directional ones (Spearman and GKgamma correaltion) are represented by pink-blue scale, since their values can be either negative or positive. For the indirectional association, please note that PseudoR, which is the square-root of Pseudo $R^2$, is used so that it is comparable to other correlation measures. This measure is represened by the orange color scale.
+
+Other features remain similar to the previous version, where color hue, transparency and thickness of edges represents the strength of correlation. User can also change the visualization operations on the left panel, such as to remove/include variables, indicate significance of correlation/association with solid black lines overlaying edges, and change threshold of correlation/association strength for visualization.
+
+Below is an example of removing a set of variables:
+
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
 knitr::include_graphics("tab4-2.png")
 ```
 
+Below is another example of showing significant correlation/association (p < 0.05):
+
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
+knitr::include_graphics("tab4-3.png")
+```
+
+
 ## Statistics
 
-The "VisX information" tab presents statistics about multicollinearity, including Variance inflation factor (VIF) and adjusted R-squared. VIF is defined as the degree of overestimation of variance caused by the correlation between one covariates and all other covariates. Adjusted R-squared (R2j) indicates how each covariate is linearly associated with all other covariates. In addition, Spearman correlation coefficients and significance from Spearman correlation test are also presented in the "Correlation" tab in matrix format. These two tables are also reactive to their corresponding in put panels. 
+The following two tabs are also reactive to the NPCA tab, displaying useful information for variable selection. The "Correlation and association matrix" tab displays the raw value of Spearman/GKgamma correlation or Pseudo R, with significane indicated by stars. Rows and columns are grouped by variable type. 
+
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
+knitr::include_graphics("tab5-1.png")
+```
+
+The "Statistics" tab presents statistics about multicollinearity, including Generalized Variance Inflation Factor (GVIF), before and after adjustment for degress of freedom. R-squared for each variable versus all other variables are also presented. However, for numeric and ordinal variables, R-suqared is extracted for mulitple linear regression, while for nominal variable this quantity is in fact Pseudo R-squared from multinomial regression. 
+
+```{r, echo=FALSE, out.width="80%", fig.align='center'}
+knitr::include_graphics("tab6-1.png")
+```
 
 # Bookmark and interative use
 
-VisX support interative operation across panels, meaning users can go back to previous panels and do more operations without overriding previous operations (except for the data panel, meaning users cannot retrieve variables removed in initialization). In addition, VisX also supports reproducing results when running on the same server. By clicking "Bookmark" at the bottom in left input panel, a bookmark link is generated, which the user an later open in the browser and retrieve where the app is left. 
+VisX support interative operation across panels, meaning users can go back to previous panels and do more operations without overriding previous operations (except for the data panel, where re-initialization may overide previous operations). In addition, VisX also supports reproducing results when running on the same server. By clicking "Bookmark" at the bottom in left input panel, a bookmark link is generated, which the user an later open in the browser and retrieve where the app is left. 
 
 
 
