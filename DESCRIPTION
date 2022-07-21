@@ -16,6 +16,7 @@ Imports:
     car,
     corrr,
     DescTools,
+    devtools,
     dplyr,
     fastDummies,
     ggnewscale,
