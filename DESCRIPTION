@@ -16,6 +16,7 @@ Imports:
     corrr,
     dplyr,
     fastDummies,
+    ggnewscale,
     ggplot2,
     ggrepel,
     here,
