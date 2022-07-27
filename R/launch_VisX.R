@@ -1,6 +1,10 @@
 
 
 
+
+
+
+
 #' Run the VisX application
 #'
 #' @description This function starts the VisX application for basic data pre-processing and variables selection
@@ -42,6 +46,5 @@
 
 
 VisX <- function(){
-  runApp(system.file(package="VisX"), launch.browser=TRUE)
-  #shinyApp(ui = ui, server = server, enableBookmarking = "server")
+  shinyApp(ui = ui, server = server, enableBookmarking = "server")
 }

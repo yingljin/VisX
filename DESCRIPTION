@@ -43,6 +43,7 @@ VignetteBuilder: knitr
 Suggests: 
     golem,
     processx,
+    covr,
     rmarkdown,
     testthat (>= 3.0.0)
-Config/testthat/edition: 3
+URL: https://yingljin.github.io/VisX/
