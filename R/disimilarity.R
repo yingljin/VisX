@@ -114,7 +114,7 @@ pairwise_cor <- function(df, var_type){
 
   # calculate correlation
   ## numeric variables alone
-  if(!is.null(id_num)){
+  if(!is.null(id_num) & length(id_num!=0)){
     num_cor <-  rcorr(as.matrix(df[, id_num]), type = "spearman")
     cor_value_mat[id_num, id_num] <- num_cor$r
     cor_p_mat[id_num, id_num] <- num_cor$P

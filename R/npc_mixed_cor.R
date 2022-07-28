@@ -37,7 +37,8 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
                            legend = TRUE, repel = TRUE, label_size = 5,
                            overlay = TRUE){
 
-  var_type <- relevel(as.factor(var_type), ref = "numeric")
+  # var_type <- relevel(as.factor(var_type), ref = "numeric")
+  var_type <- factor(var_type, levels = c("numeric", "factor", "ordinal"))
   ## A few checks
   if(min_cor < 0 || min_cor > 1){
     stop("min_cor must be a value ranging from zero to one.")
@@ -138,8 +139,8 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
   color_var <- ifelse(paths$type=="pseudoR2", "nodir", "dir")
   paths <- split(paths, f = color_var)
   ## add var_type in points
-  #points$var_type <- as.numeric(var_type)
   ## plot using different colorscales
+  ## first, the directional ones
   npc <- ggplot()+
     geom_curve(data = paths$dir,
                aes(x = x, y = y, xend = xend, yend = yend,
@@ -148,17 +149,22 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
     scale_alpha(limits = c(0, 1))+
     scale_size(limits = c(0, 1))+
     scale_color_gradientn(name = "Spearman/GKgamma", limits = c(-1, 1),
-                          colors = c("indianred2","white", "skyblue1"))+
-    new_scale_color()+
-    geom_curve(data = paths$nodir,
-               aes(x = x, y = y, xend = xend, yend = yend,
-                   alpha = proximity, size = proximity,
-                   color = proximity))+
-    scale_color_gradientn(name = "PseudoR", limits = c(0, 1),
-                          colors = c("white", "darkorange"))+
+                          colors = c("indianred2","white", "skyblue1"))
+  ## then, in-directional ones
+  if(!is.null(paths$nodir)){
+    npc <- npc+new_scale_color()+
+      geom_curve(data = paths$nodir,
+                 aes(x = x, y = y, xend = xend, yend = yend,
+                    alpha = proximity, size = proximity,
+                    color = proximity))+
+      scale_color_gradientn(name = "PseudoR", limits = c(0, 1),
+                            colors = c("white", "darkorange"))}
+  npc <- npc +
     geom_point(data = points, aes(x,y, shape = var_type), size = 3,
                alpha=1, colour = "black")+
-    scale_shape_manual(name = "Variable type", values = c(1, 2, 5),
+    scale_shape_manual(name = "Variable type",
+                       breaks = c("numeric", "factor", "ordinal"),
+                       values = c("numeric"=1, "factor"=2, "ordinal"=5),
                        labels = c("numeric", "nominal",  "ordinal"))
   # add significance level
   if(show_signif){
