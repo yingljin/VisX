@@ -19,6 +19,9 @@
     <loc>https://yingljin.github.io/VisX/index.html</loc>
   </url>
   <url>
+    <loc>https://yingljin.github.io/VisX/reference/VisX.html</loc>
+  </url>
+  <url>
     <loc>https://yingljin.github.io/VisX/reference/corstars.html</loc>
   </url>
   <url>
@@ -47,8 +50,5 @@
   </url>
   <url>
     <loc>https://yingljin.github.io/VisX/reference/pairwise_cor.html</loc>
-  </url>
-  <url>
-    <loc>https://yingljin.github.io/VisX/reference/ui.html</loc>
   </url>
 </urlset>
