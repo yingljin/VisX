@@ -2,8 +2,6 @@
 
 export(VisX)
 export(corstars)
-export(server)
-export(ui)
 import(dplyr)
 import(ggnewscale)
 import(ggplot2)

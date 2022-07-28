@@ -27,9 +27,3 @@ Application interface will pop up after calling this function;
 data can be uploaded in that interface;
 close the interface or interrupt R to stop the application.
 }
-\examples{
-VisX()
-
-
-
-}

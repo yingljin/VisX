@@ -1,8 +1,4 @@
 
-#' User interface of the VisX application
-#'
-#' @description lays out the user interface for VisX app
-#' @export
 #' @import shiny
 
 ui <- function(request){

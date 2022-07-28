@@ -1,7 +1,3 @@
-#' Server of VisX application
-#'
-#' @description This function  lays out interactive functionalities of VisX
-#' @export
 #' @import shiny
 #' @import dplyr
 #' @import ggplot2
@@ -20,9 +16,6 @@
 #' @import stringr
 #' @import tibble
 #' @importFrom tidyr pivot_longer
-#'
-#'
-#'
 
 server <- function(input, output){
 

@@ -38,9 +38,6 @@
 #' @import stringr
 #' @import tibble
 #' @importFrom tidyr pivot_longer
-#' @examples
-#' VisX()
-#'
 #'
 #'
 
