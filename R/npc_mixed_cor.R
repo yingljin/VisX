@@ -23,6 +23,8 @@
 #' @import ggplot2
 #' @import ggnewscale
 #' @import ggrepel
+#' @importFrom stats as.formula ave cmdscale lm rnorm sd
+#' @importFrom utils read.csv sessionInfo
 #'
 #' @examples
 #' data("mtcars")
@@ -87,6 +89,8 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
   n_paths <- sum(!is.na(proximity))
   paths <- data.frame(matrix(nrow = n_paths, ncol = 7))
   colnames(paths) <- c("x", "y", "xend", "yend", "proximity", "sign", "type")
+  # proximity - color, transparancy, thickness of edges
+  # sign - direction of correlation
   path <- 1
   for (row in 1:nrow(proximity)) {
     for (col in 1:ncol(proximity)) {

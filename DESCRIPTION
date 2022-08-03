@@ -15,6 +15,7 @@ LazyData: true
 Imports: 
     car,
     corrr,
+    covr,
     DescTools,
     devtools,
     dplyr,
@@ -43,7 +44,6 @@ VignetteBuilder: knitr
 Suggests: 
     golem,
     processx,
-    covr,
     rmarkdown,
     testthat (>= 3.0.0)
 URL: https://yingljin.github.io/VisX/

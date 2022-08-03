@@ -249,6 +249,8 @@ server <- function(input, output){
   output$rinfo <- renderPrint({sessionInfo()})
 
   # bookmark
+  # bookmark functions saves the current status of reactive values
+  # except for conditional values
   onBookmark(function(state){
     state$values$currentdata <- bl_df
     state$values$current_df_all <- df_lst$df_all
