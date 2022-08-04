@@ -1,6 +1,6 @@
 
 # this script writes functions for calculating measures of association
-# between different types of variables
+# between two variables
 
 #### association ####
 
@@ -66,7 +66,7 @@ pair_cor <- function(df, type){
   return(list(cor_value = cor_value, cor_type = cor_type, cor_p = cor_p))
 }
 
-##### pariwise association #####
+##### pairwise association #####
 
 #' Calculate pariwise association of data with mixed types of variables
 #'
@@ -136,3 +136,5 @@ pairwise_cor <- function(df, var_type){
 
   return(list(cor_value = cor_value_mat, cor_type = cor_type_mat, cor_p = cor_p_mat))
 }
+
+

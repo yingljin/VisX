@@ -2,6 +2,8 @@
 
 test_that("A pair of variables", {
 
+  withr::local_package("nnet")
+
   # data
   data <- data.frame(x = rnorm(10), y = rbinom(10, 1, 0.5))
   type1 <- c("numeric", "factor")
@@ -31,6 +33,9 @@ test_that("A pair of variables", {
 ##### pariwise correlation/association #####
 
 test_that("Data frame", {
+
+  withr::local_package("nnet")
+
   df <- data.frame(x = rnorm(10),  y = rbinom(10, 1, 0.5),
                       z = rbinom(10, 5, 0.5))
   type_df <- c("numeric", "factor", "ordinal")

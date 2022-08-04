@@ -45,5 +45,6 @@ Suggests:
     golem,
     processx,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 URL: https://yingljin.github.io/VisX/

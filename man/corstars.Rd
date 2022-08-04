@@ -25,7 +25,7 @@ Columns and rows are grouped by variable type
 data(mtcars)
 library(VisX)
 types <- rep("numeric", ncol(mtcars))
-test <- pairwise_cor(mtcars, types)
+test <- VisX::pairwise_cor(mtcars, types)
 type <- c("numeric", "factor",  rep("numeric", 5), rep("factor", 2), rep("ordinal", 2))
 corstars(test$cor_value, test$cor_p, type)
 
