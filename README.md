@@ -35,3 +35,11 @@ library(VisX)
 ## launch app
 VisX()
 ```
+
+## Video walkthrough
+
+A video walkthrough of the application has been made available, linked to below:
+
+[![VisX video](https://img.youtube.com/vi/aZfLty00Mrc/0.jpg)](https://www.youtube.com/watch?v=aZfLty00Mrc)
+
+
