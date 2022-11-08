@@ -3,7 +3,7 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   VisX_workflow: VisX_workflow.html
-last_built: 2022-10-11T21:50Z
+last_built: 2022-11-08T21:31Z
 urls:
   reference: https://yingljin.github.io/VisX/reference
   article: https://yingljin.github.io/VisX/articles
