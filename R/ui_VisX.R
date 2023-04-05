@@ -103,8 +103,8 @@ ui <- function(request){
                                          htmlOutput("cormat")),
 
                                 # statistics tab
-                                tabPanel(title = "Statistics",
-                                         htmlOutput("stat")),
+                                # tabPanel(title = "Statistics",
+                                #          htmlOutput("stat")),
 
                                 # check
                                 tabPanel(title = "Note",

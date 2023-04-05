@@ -201,7 +201,7 @@ server <- function(input, output){
                     var_types, show_signif=input$signif!="none",
                     sig.level = input$signif,
                     min_cor = input$min_cor)
-    }, height = 1000, width = 1000)
+    }, height = 800, width = 800)
     # association matrix for display
     format_cor <- corstars(cor_mats$cor_value, cor_mats$cor_p, var_types)
     cor_mat_star <- format_cor$Rnew
@@ -234,15 +234,15 @@ server <- function(input, output){
     var_labs <- factor(var_types, levels = c("numeric", "factor", "ordinal"),
                        labels = c("numeric", "nominal", "ordinal"))
     var_labs <- droplevels(var_labs)
-    output$stat <- renderText({
-      tb <- data.frame(vifs, r2)
-      colnames(tb)<- c("GVIF", "DF", "Adjusted GVIF", "R-squared")
-      tb[order(var_labs), ] %>%
-        kable(escape = F) %>%
-        kable_styling(full_width = F) %>%
-        pack_rows(index = table(var_labs)) %>%
-        scroll_box(width = "100%", height = "1000px")
-    })
+    # output$stat <- renderText({
+    #   tb <- data.frame(vifs, r2)
+    #   colnames(tb)<- c("GVIF", "DF", "Adjusted GVIF", "R-squared")
+    #   tb[order(var_labs), ] %>%
+    #     kable(escape = F) %>%
+    #     kable_styling(full_width = F) %>%
+    #     pack_rows(index = table(var_labs)) %>%
+    #     scroll_box(width = "100%", height = "1000px")
+    # })
   })
 
   # session info
