@@ -87,27 +87,29 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
   diag(proximity) <- NA
   proximity[proximity < min_cor] <- NA
   n_paths <- sum(!is.na(proximity))
-  paths <- data.frame(matrix(nrow = n_paths, ncol = 7))
-  colnames(paths) <- c("x", "y", "xend", "yend", "proximity", "sign", "type")
-  # proximity - color, transparancy, thickness of edges
-  # sign - direction of correlation
-  path <- 1
-  for (row in 1:nrow(proximity)) {
-    for (col in 1:ncol(proximity)) {
-      path_proximity <- proximity[row, col]
-      if (!is.na(path_proximity)) {
-        path_sign <- sign(cor_value[row, col])
-        x <- points$x[row]
-        y <- points$y[row]
-        xend <- points$x[col]
-        yend <- points$y[col]
-        paths[path, ] <- c(x, y, xend, yend, path_proximity,
-                           path_sign, cor_type[row, col])
-        path <- path + 1
+  # do not do this if no correlation is over threshold
+  if(n_paths>0){
+    paths <- data.frame(matrix(nrow = n_paths, ncol = 7))
+    colnames(paths) <- c("x", "y", "xend", "yend", "proximity", "sign", "type")
+    # proximity - color, transparancy, thickness of edges
+    # sign - direction of correlation
+    path <- 1
+    for (row in 1:nrow(proximity)) {
+      for (col in 1:ncol(proximity)) {
+        path_proximity <- proximity[row, col]
+        if (!is.na(path_proximity)) {
+          path_sign <- sign(cor_value[row, col])
+          x <- points$x[row]
+          y <- points$y[row]
+          xend <- points$x[col]
+          yend <- points$y[col]
+          paths[path, ] <- c(x, y, xend, yend, path_proximity,
+                             path_sign, cor_type[row, col])
+          path <- path + 1
+        }
       }
     }
-  }
-  paths <- paths %>% mutate_at(vars(-type), as.numeric)
+    paths <- paths %>% mutate_at(vars(-type), as.numeric)}
 
   # edges based on significance
   if(show_signif){
@@ -120,22 +122,25 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
     proximity2[is.na(proximity)] <- NA
     }
     n_paths2 <- sum(!is.na(proximity2))
-    paths2 <- data.frame(matrix(nrow = n_paths2, ncol = 5))
-    colnames(paths2) <- c("x", "y", "xend", "yend", "proximity")
-    path <- 1
-    for (row in 1:nrow(proximity2)) {
-      for (col in 1:ncol(proximity2)) {
-        path_proximity <- proximity2[row, col]
-        if (!is.na(path_proximity)) {
-          x <- points$x[row]
-          y <- points$y[row]
-          xend <- points$x[col]
-          yend <- points$y[col]
-          paths2[path, ] <- c(x, y, xend, yend, path_proximity)
-          path <- path + 1
+    # do not do this if no correlation is over threshold
+    if(n_paths2>0){
+      paths2 <- data.frame(matrix(nrow = n_paths2, ncol = 5))
+      colnames(paths2) <- c("x", "y", "xend", "yend", "proximity")
+      path <- 1
+      for (row in 1:nrow(proximity2)) {
+        for (col in 1:ncol(proximity2)) {
+          path_proximity <- proximity2[row, col]
+          if (!is.na(path_proximity)) {
+            x <- points$x[row]
+            y <- points$y[row]
+            xend <- points$x[col]
+            yend <- points$y[col]
+            paths2[path, ] <- c(x, y, xend, yend, path_proximity)
+            path <- path + 1
+          }
         }
       }
-    }
+      }
   }
 
   # plot correlation
@@ -144,17 +149,31 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
   paths <- split(paths, f = color_var)
   ## add var_type in points
   ## plot using different colorscales
-  ## first, the directional ones
+
+  ## first, plot variable as points
   npc <- ggplot()+
-    geom_curve(data = paths$dir,
-               aes(x = x, y = y, xend = xend, yend = yend,
-                   alpha = proximity, size = proximity,
-                   color = proximity*sign))+
-    scale_alpha(limits = c(0, 1))+
-    scale_size(limits = c(0, 1))+
-    scale_color_gradientn(name = "Spearman/GKgamma", limits = c(-1, 1),
-                          colors = c("indianred2","white", "skyblue1"))
-  ## then, in-directional ones
+    geom_point(data = points, aes(x,y, shape = var_type), size = 3,
+             alpha=1, colour = "black")+
+    scale_shape_manual(name = "Variable type",
+                       breaks = c("numeric", "factor", "ordinal"),
+                       values = c("numeric"=1, "factor"=2, "ordinal"=5),
+                       labels = c("numeric", "nominal",  "ordinal"))
+
+
+  ## Then, the correlations as edges
+  ## directional
+  if(!is.null(paths$dir)){
+    npc <- npc+
+      geom_curve(data = paths$dir,
+                 aes(x = x, y = y, xend = xend, yend = yend,
+                     alpha = proximity, size = proximity,
+                     color = proximity*sign))+
+      scale_alpha(limits = c(0, 1))+
+      scale_size(limits = c(0, 1))+
+      scale_color_gradientn(name = "Spearman/GKgamma", limits = c(-1, 1),
+                            colors = c("indianred2","white", "skyblue1"))
+  }
+  ## indirectional
   if(!is.null(paths$nodir)){
     npc <- npc+new_scale_color()+
       geom_curve(data = paths$nodir,
@@ -162,14 +181,9 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
                     alpha = proximity, size = proximity,
                     color = proximity))+
       scale_color_gradientn(name = "PseudoR", limits = c(0, 1),
-                            colors = c("white", "darkorange"))}
-  npc <- npc +
-    geom_point(data = points, aes(x,y, shape = var_type), size = 3,
-               alpha=1, colour = "black")+
-    scale_shape_manual(name = "Variable type",
-                       breaks = c("numeric", "factor", "ordinal"),
-                       values = c("numeric"=1, "factor"=2, "ordinal"=5),
-                       labels = c("numeric", "nominal",  "ordinal"))
+                            colors = c("white", "darkorange"))
+    }
+
   # add significance level
   if(show_signif){
     npc <- npc+
