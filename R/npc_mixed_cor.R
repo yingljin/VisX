@@ -185,7 +185,7 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
     }
 
   # add significance level
-  if(show_signif){
+  if(show_signif & n_paths2>0){
     npc <- npc+
       geom_curve(data = paths2,
                 aes(x = x, y = y, xend = xend, yend = yend, alpha = 0.5))
