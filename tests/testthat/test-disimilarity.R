@@ -31,8 +31,6 @@ test_that("A pair of variables", {
 
 test_that("Data frame", {
 
-  withr::local_package("nnet")
-
   df <- data.frame(x = rnorm(10),  y = rbinom(10, 1, 0.5),
                       z = rbinom(10, 5, 0.5))
   type_df <- c("numeric", "factor", "ordinal")

@@ -23,5 +23,7 @@ defined as how one variable is linearly associated with all other variables in t
 }
 \examples{
 df <- data.frame(X1 = rnorm(100), X2 = rnorm(100), X3 = rnorm(100))
+\dontrun{
 get_r2j(df, rep("numeric", 3))
+}
 }

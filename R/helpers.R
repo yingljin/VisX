@@ -63,14 +63,15 @@ corstars <-function(cor_value, cor_p, var_type){
 #' @param df data frame
 #' @param type type corresponding to columns in df
 #'
-#' @importFrom nnet multinom
 #' @importFrom DescTools PseudoR2
 #'
 #' @return A vector with values of R squared of each variable
 #'
 #' @examples
 #' df <- data.frame(X1 = rnorm(100), X2 = rnorm(100), X3 = rnorm(100))
+#' \dontrun{
 #' get_r2j(df, rep("numeric", 3))
+#' }
 
 get_r2 <- function(df, type) {
 

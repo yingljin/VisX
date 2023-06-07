@@ -40,9 +40,7 @@ Network Plot of Association
 }
 \examples{
 data("mtcars")
-type1 <- c(rep("numeric", 7), rep("factor", 2), rep("ordinal", 2))
-test_cor1 <- pairwise_cor(mtcars, type1)
-npc_mixed_cor(test_cor1$cor_value, test_cor1$cor_type, test_cor1$cor_p, type1)
-
+test_cor1 <- pairwise_cor(mtcars)
+npc_mixed_cor(test_cor1)
 
 }

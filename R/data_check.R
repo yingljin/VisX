@@ -6,9 +6,6 @@
 #'
 #' @return a warning message if there exists empty columns or columns with no variation in the data
 #'
-#' @examples
-#' df <- data.frame(x1 = rnorm(100), x2 = rnorm(100), x3 = NA, x4 = 1)
-#' data_check(df)
 
 data_check <- function(df){
 

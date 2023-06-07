@@ -1,7 +1,7 @@
 Package: VisX
 Type: Package
 Title: Visual interactive model selection
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: c(person("Ying", "Jin", email = "ying.jin@cuanschutz.edu", role = "cre"),
              person("Ryan", "Peterson", email = "ryan.a.peterson@cuanschutz.edu", role = "aut"),
              person("Carsten", "Goerg", email = "carsten.goerg@cuanschutz.edu", role = "aut"))
@@ -17,17 +17,14 @@ Imports:
     DescTools,
     dplyr,
     fastDummies,
-    ggnewscale,
     ggplot2,
+    ggnewscale,
     ggrepel,
-    here,
     Hmisc,
     janitor,
     kableExtra,
     knitr,
-    magrittr,
     MESS,
-    nnet,
     readr,
     rlang,
     shiny,
@@ -35,6 +32,7 @@ Imports:
     stringr,
     tibble,
     tidyr
+Depends: nnet
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Suggests: 
@@ -42,5 +40,6 @@ Suggests:
     processx,
     rmarkdown,
     testthat (>= 3.0.0),
-    withr
+    withr,
+    devtools
 URL: https://yingljin.github.io/VisX/

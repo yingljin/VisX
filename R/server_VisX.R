@@ -1,7 +1,6 @@
 #' @import shiny
 #' @import dplyr
 #' @import ggplot2
-#' @import here
 #' @importFrom janitor clean_names
 #' @importFrom fastDummies dummy_cols
 #' @importFrom kableExtra kable
@@ -11,11 +10,11 @@
 #' @importFrom kableExtra scroll_box
 #' @importFrom car vif
 #' @import knitr
-#' @import magrittr
 #' @import readr
 #' @import stringr
 #' @import tibble
 #' @importFrom tidyr pivot_longer
+#' @importFrom utils write.csv
 
 server <- function(input, output){
 
@@ -235,6 +234,7 @@ server <- function(input, output){
     col_id <- droplevels(col_id)
     output$cormat <-  renderText({
       cor_mat_star %>%
+        t() %>%
         kable(escape = F) %>%
         kable_styling("condensed", full_width = F) %>%
         pack_rows(index = table(row_id)) %>%
@@ -299,7 +299,7 @@ server <- function(input, output){
       paste("full-VisX-Dataset-", Sys.Date(), ".csv", sep="")
     },
     content = function(file) {
-      write.csv(df_lst$df_all, file)
+      write.csv(df_lst$df_all, file, row.names = FALSE)
     })
 }
 

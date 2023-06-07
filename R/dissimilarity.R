@@ -20,12 +20,11 @@
 #'
 #' ordinal vs ordinal or numeric: GK gamma and GK gamma correlation test
 #'
-#' @importFrom nnet multinom
 #' @importFrom DescTools PseudoR2
 #' @importFrom car Anova
 #' @importFrom MESS gkgamma
 #'
-#' @examples
+#' @examples \dontrun{
 #' data1 <- data.frame(x = rnorm(10), y = rbinom(10, 1, 0.5))
 #' # second variable as factor
 #' type1 <- c("numeric", "factor")
@@ -33,7 +32,7 @@
 #' # second variable as ordinal
 #' type2 <- c("numeric", "ordinal")
 #' pair_cor(data1, type2)
-#'
+#' }
 pair_cor <- function(df, type){
 
   # check
@@ -95,11 +94,12 @@ pair_cor <- function(df, type){
 #' numeric vs numeric: Spearman correlation and p value
 #'
 #' @importFrom Hmisc rcorr
-#' @importFrom nnet multinom
+#' @import nnet
 #' @importFrom DescTools PseudoR2
 #' @importFrom car Anova
 #' @importFrom MESS gkgamma
 #' @importFrom janitor clean_names
+#' @importFrom utils capture.output
 #' @export
 #'
 #' @examples

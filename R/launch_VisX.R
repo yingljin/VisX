@@ -23,7 +23,6 @@
 #' @import shiny
 #' @import dplyr
 #' @import ggplot2
-#' @import here
 #' @importFrom janitor clean_names
 #' @importFrom fastDummies dummy_cols
 #' @importFrom kableExtra kable
@@ -33,12 +32,10 @@
 #' @importFrom kableExtra scroll_box
 #' @importFrom car vif
 #' @import knitr
-#' @import magrittr
 #' @import readr
 #' @import stringr
 #' @import tibble
 #' @importFrom tidyr pivot_longer
-#' @importFrom nnet multinom
 #'
 
 

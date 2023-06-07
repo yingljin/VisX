@@ -13,22 +13,21 @@
 #' @return A network plot of association
 #'
 #' @importFrom Hmisc rcorr
-#' @importFrom nnet multinom
 #' @importFrom DescTools PseudoR2
 #' @importFrom car Anova
 #' @importFrom MESS gkgamma
 #' @import ggplot2
-#' @import ggnewscale
 #' @import ggrepel
 #' @importFrom stats as.formula ave cmdscale lm rnorm sd
 #' @importFrom utils read.csv sessionInfo
+#' @importFrom ggnewscale new_scale_color
 #'
 #' @examples
 #' data("mtcars")
-#' type1 <- c(rep("numeric", 7), rep("factor", 2), rep("ordinal", 2))
-#' test_cor1 <- pairwise_cor(mtcars, type1)
-#' npc_mixed_cor(test_cor1$cor_value, test_cor1$cor_type, test_cor1$cor_p, type1)
+#' test_cor1 <- pairwise_cor(mtcars)
+#' npc_mixed_cor(test_cor1)
 #'
+#' @export
 #'
 npc_mixed_cor <- function (cor_results,
                            sig.level = 0.05, min_cor = 0.3,
@@ -174,7 +173,7 @@ npc_mixed_cor <- function (cor_results,
   }
   ## indirectional
   if(!is.null(paths$nodir)){
-    npc <- npc+new_scale_color()+
+    npc <- npc+ggnewscale::new_scale_color()+
       geom_curve(data = paths$nodir,
                  aes(x = x, y = y, xend = xend, yend = yend,
                     alpha = proximity, linewidth = proximity,
@@ -205,7 +204,7 @@ npc_mixed_cor <- function (cor_results,
               expand_limits(x = c(min(points$x) - 0.1, max(points$x) +0.1),
                             y = c(min(points$y) - 0.1, max(points$y) +0.1)),
               theme_void(),
-              guides(size = "none", alpha = "none"),
+              guides(linewidth = "none", alpha = "none"),
               # legend
               if (legend)
                 theme(legend.text = element_text(size = 10),

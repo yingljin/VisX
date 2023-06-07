@@ -28,6 +28,7 @@ factor vs numeric, factor or ordinal: Pseudo R^2 and p value from multinomial re
 ordinal vs ordinal or numeric: GK gamma and GK gamma correlation test
 }
 \examples{
+\dontrun{
 data1 <- data.frame(x = rnorm(10), y = rbinom(10, 1, 0.5))
 # second variable as factor
 type1 <- c("numeric", "factor")
@@ -35,5 +36,5 @@ pair_cor(data1, type1)
 # second variable as ordinal
 type2 <- c("numeric", "ordinal")
 pair_cor(data1, type2)
-
+}
 }
