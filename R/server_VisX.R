@@ -80,8 +80,18 @@ server <- function(input, output){
   })
   ## display original variables
   output$dist_org <- renderPlot({
-    make_hist(df_lst$df_org[, df_lst$org_type=="numeric"])},
-    height = 600, width = 1000)
+    df_plot <- df_lst$df_org[, df_lst$org_type=="numeric"]
+
+    if(nrow(df_plot)>0){
+      df_plot <- mutate_all(df_plot, as.numeric)
+      make_hist(df_plot)
+    }
+    else{
+      ggplot()+theme_void()+labs(title = "No numeric variables")+
+        theme(title = element_text(size = 20))
+    }
+  },  height = 600, width = 1000)
+
   ## transformations: univariate
   observeEvent(input$newtrans,
                {new_vars <- df_lst$df_all %>%
@@ -128,11 +138,19 @@ server <- function(input, output){
   # categorical variable tab
   ## disaplay original variables
   output$bar_org <- renderPlot({
-    df_plot <- df_lst$df_org[, df_lst$org_type!="numeric"]
-    df_plot <- mutate_all(df_plot, as.character)
-    make_bar(df_plot)},
-    height = 600, width = 1000)
-  ## bining
+    if(any(df_lst$org_type != "numeric")){
+      df_plot <- df_lst$df_org[, df_lst$org_type!="numeric",drop = FALSE]
+      df_plot <- mutate_all(df_plot, as.character)
+      make_bar(df_plot)
+    }
+    else{
+      ggplot()+theme_void()+labs(title = "No nominal variables")+
+        theme(title = element_text(size = 20))
+    }
+
+   }, height = 600, width = 1000)
+
+  ## binning
   output$vars_bin <- renderUI({
     selectInput("vars_bin", "Variable to collapse",
                 choices = colnames(df_lst$df_all)[df_lst$var_type!="numeric"])
@@ -197,8 +215,7 @@ server <- function(input, output){
     cor_mats <- pairwise_cor(df_cor, var_types)
     # network plot
     output$npc <- renderPlot({
-      npc_mixed_cor(cor_mats$cor_value, cor_mats$cor_type, cor_mats$cor_p,
-                    var_types, show_signif=input$signif!="none",
+      npc_mixed_cor(cor_mats, show_signif=input$signif!="none",
                     sig.level = input$signif,
                     min_cor = input$min_cor)
     }, height = 800, width = 800)
@@ -276,5 +293,13 @@ server <- function(input, output){
   })
 
   setBookmarkExclude(c("init", "newvars_cor", "newtrans", "newop", "cattrans", "dichot"))
+
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("full-VisX-Dataset-", Sys.Date(), ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(df_lst$df_all, file)
+    })
 }
 

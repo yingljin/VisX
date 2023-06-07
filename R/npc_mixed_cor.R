@@ -1,10 +1,7 @@
 
 #' Network Plot of Association
 #'
-#' @param cor_value a matrix with values of association measures
-#' @param cor_type a matrix with types of association measures
-#' @param cor_p a matrix with p values of association tests
-#' @param var_type a character vector with types of variables association is measured on
+#' @param cor_results a list from pairwise_cor output
 #' @param min_cor minimum association to be visualized
 #' @param show_signif whether or not to visualize significance of association
 #' @param sig.level maximum significance to be visualized
@@ -33,24 +30,24 @@
 #' npc_mixed_cor(test_cor1$cor_value, test_cor1$cor_type, test_cor1$cor_p, type1)
 #'
 #'
-npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
+npc_mixed_cor <- function (cor_results,
                            sig.level = 0.05, min_cor = 0.3,
                            show_signif = FALSE,
                            legend = TRUE, repel = TRUE, label_size = 5,
                            overlay = TRUE){
 
   # var_type <- relevel(as.factor(var_type), ref = "numeric")
-  var_type <- factor(var_type, levels = c("numeric", "factor", "ordinal"))
+  var_type <- factor(cor_results$var_type, levels = c("numeric", "factor", "ordinal"))
   ## A few checks
   if(min_cor < 0 || min_cor > 1){
     stop("min_cor must be a value ranging from zero to one.")
   }
-  if(!isSymmetric(cor_value) | !isSymmetric(cor_type)){
+  if(!isSymmetric(cor_results$cor_value) | !isSymmetric(cor_results$cor_type)){
     stop("Correlation matrix or type not valid")
   }
 
   # create dissimilarity matrix
-  dissim <- 1-abs(cor_value)
+  dissim <- 1-abs(cor_results$cor_value)
 
   # Calculate coordinates of variables
   points <-
@@ -82,7 +79,7 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
   points$id <- rownames(points)
 
   # edges according to value of correlation
-  proximity <- abs(cor_value)
+  proximity <- abs(cor_results$cor_value)
   proximity[upper.tri(proximity)] <- NA
   diag(proximity) <- NA
   proximity[proximity < min_cor] <- NA
@@ -98,13 +95,13 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
       for (col in 1:ncol(proximity)) {
         path_proximity <- proximity[row, col]
         if (!is.na(path_proximity)) {
-          path_sign <- sign(cor_value[row, col])
+          path_sign <- sign(cor_results$cor_value[row, col])
           x <- points$x[row]
           y <- points$y[row]
           xend <- points$x[col]
           yend <- points$y[col]
           paths[path, ] <- c(x, y, xend, yend, path_proximity,
-                             path_sign, cor_type[row, col])
+                             path_sign, cor_results$cor_type[row, col])
           path <- path + 1
         }
       }
@@ -112,8 +109,10 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
     paths <- paths %>% mutate_at(vars(-type), as.numeric)}
 
   # edges based on significance
+  n_paths2 <- 0
+
   if(show_signif){
-    proximity2 <- cor_p
+    proximity2 <- cor_results$cor_p
     proximity2[upper.tri(proximity2)] <- NA
     diag(proximity2) <- NA
     proximity2[proximity2 > sig.level] <- NA
@@ -166,10 +165,10 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
     npc <- npc+
       geom_curve(data = paths$dir,
                  aes(x = x, y = y, xend = xend, yend = yend,
-                     alpha = proximity, size = proximity,
+                     alpha = proximity, linewidth = proximity,
                      color = proximity*sign))+
       scale_alpha(limits = c(0, 1))+
-      scale_size(limits = c(0, 1))+
+      scale_linewidth(limits = c(0, 1))+
       scale_color_gradientn(name = "Spearman/GKgamma", limits = c(-1, 1),
                             colors = c("indianred2","white", "skyblue1"))
   }
@@ -178,7 +177,7 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
     npc <- npc+new_scale_color()+
       geom_curve(data = paths$nodir,
                  aes(x = x, y = y, xend = xend, yend = yend,
-                    alpha = proximity, size = proximity,
+                    alpha = proximity, linewidth = proximity,
                     color = proximity))+
       scale_color_gradientn(name = "PseudoR", limits = c(0, 1),
                             colors = c("white", "darkorange"))
@@ -197,7 +196,8 @@ npc_mixed_cor <- function (cor_value, cor_type, cor_p, var_type,
                 ggrepel::geom_text_repel(data = points,aes(x, y, label = id),
                                          fontface = "bold",size = label_size,
                                          segment.size = 0,
-                                         segment.color = "white"),
+                                         segment.color = "white",
+                                         seed = 1),
               if(!repel)
                 geom_text(data = points,aes(x, y, label = id),
                           fontface = "bold",

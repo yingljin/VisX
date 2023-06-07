@@ -2,7 +2,6 @@
 ##### corstars #####
 
 test_that("correlation matrix with significance", {
-  withr::local_package("nnet")
 
   df <- data.frame(x1 = rnorm(100),
                    x2 = sample(c("a", "b", "c"), size = 100, replace = T),
@@ -21,7 +20,6 @@ test_that("correlation matrix with significance", {
 ##### get_r2 #####
 
 test_that("get R-squared", {
-  withr::local_package("nnet")
 
   df <- data.frame(x1 = rnorm(100),
                    x2 = sample(c("a", "b", "c"), size = 100, replace = T),

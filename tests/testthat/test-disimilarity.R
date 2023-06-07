@@ -1,9 +1,6 @@
 #### correlation/association of a pair of variables ####
 
 test_that("A pair of variables", {
-
-  withr::local_package("nnet")
-
   # data
   data <- data.frame(x = rnorm(10), y = rbinom(10, 1, 0.5))
   type1 <- c("numeric", "factor")

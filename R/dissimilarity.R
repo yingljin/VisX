@@ -48,11 +48,21 @@ pair_cor <- function(df, type){
                 paste(varnames[1], "~", varnames[2]),
                 paste(varnames[2], "~", varnames[1]))
     f <- as.formula(f)
-    mult_fit <- multinom(f, data = df, model = T)
-    cor_value <- PseudoR2(mult_fit, which = "Nagelkerke")
-    cor_value <- sqrt(cor_value)
-    cor_p <- Anova(mult_fit)$`Pr(>Chisq)`
+    mult_fit <- try(multinom(f, data = df, model = T, trace = FALSE), silent = TRUE)
     cor_type <- "pseudoR2"
+
+    if(!("try-error" %in% class(mult_fit)) ) {
+      cor_value <- PseudoR2(mult_fit, which = "Nagelkerke")
+      cor_value <- sqrt(cor_value)
+      discard <- capture.output(cor_p <- Anova(mult_fit, trace = FALSE)$`Pr(>Chisq)`)
+    } else if (all(df[,1] == df[,2])) {
+      cor_value <- 1
+      cor_p <- NA
+    } else {
+      cor_value <- 1
+      cor_p <- NA
+    }
+
   }
   # GK gamma
   else{
@@ -72,6 +82,7 @@ pair_cor <- function(df, type){
 #'
 #' @param df dataframe with mixed types of variables
 #' @param var_type a charater vector corresponding to types of variables in df
+#'  if not provided, will guess.
 #'
 #' @return matrices with measures, types and p values of association
 #'
@@ -88,6 +99,8 @@ pair_cor <- function(df, type){
 #' @importFrom DescTools PseudoR2
 #' @importFrom car Anova
 #' @importFrom MESS gkgamma
+#' @importFrom janitor clean_names
+#' @export
 #'
 #' @examples
 #' data1 <- data.frame(x = rnorm(10),
@@ -96,7 +109,16 @@ pair_cor <- function(df, type){
 #' type1 <- c("numeric", "factor", "ordinal")
 #' pairwise_cor(data1, type1)
 #'
-pairwise_cor <- function(df, var_type){
+pairwise_cor <- function(df, var_type = NULL){
+
+  # Guesses if not specified
+  if(!length(var_type)) {
+    types <- sapply(df, class)
+    var_type <- factor(types,
+                    levels = c("numeric", "integer", "factor", "character", "logical", "NULL"),
+                    labels = c("numeric", "numeric", "factor", "factor", "factor", "factor"))
+  }
+
 
   # set-up
   p <- ncol(df)
@@ -133,8 +155,7 @@ pairwise_cor <- function(df, var_type){
     }
   }
 
-
-  return(list(cor_value = cor_value_mat, cor_type = cor_type_mat, cor_p = cor_p_mat))
+  return(list(cor_value = cor_value_mat, cor_type = cor_type_mat, cor_p = cor_p_mat, var_type = var_type))
 }
 
 

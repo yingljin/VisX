@@ -42,7 +42,7 @@ ui <- function(request){
                                        uiOutput("levels"),
                                        textInput("newcat", "Name of new category"),
                                        radioButtons("binned_type", "Type of new variable",
-                                                    choices = list("nomial" = "factor",
+                                                    choices = list("nominal" = "factor",
                                                                    "ordinal" = "ordinal")),
                                        actionButton("cattrans", "Update")),
                                      # Dichotomization?
@@ -53,7 +53,7 @@ ui <- function(request){
                                        textInput("high_lev", "Name higher level (greater than threshold)"),
                                        textInput("low_lev", "Name lower level (less than/equal to threshold)"),
                                        radioButtons("bi_type", "Type of new variable",
-                                                    choices = list("nomial" = "factor",
+                                                    choices = list("nominal" = "factor",
                                                                    "ordinal" = "ordinal")),
                                        actionButton("dichot", "Create variable"))),
                     # panel for correlation input
@@ -70,6 +70,7 @@ ui <- function(request){
                     ),
                     br(),
                     bookmarkButton(),
+                    downloadButton("downloadData", "Download data"),
                     width = 2),
 
                   # main panel

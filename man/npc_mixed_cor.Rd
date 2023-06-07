@@ -5,10 +5,7 @@
 \title{Network Plot of Association}
 \usage{
 npc_mixed_cor(
-  cor_value,
-  cor_type,
-  cor_p,
-  var_type,
+  cor_results,
   sig.level = 0.05,
   min_cor = 0.3,
   show_signif = FALSE,
@@ -19,13 +16,7 @@ npc_mixed_cor(
 )
 }
 \arguments{
-\item{cor_value}{a matrix with values of association measures}
-
-\item{cor_type}{a matrix with types of association measures}
-
-\item{cor_p}{a matrix with p values of association tests}
-
-\item{var_type}{a character vector with types of variables association is measured on}
+\item{cor_results}{a list from pairwise_cor output}
 
 \item{sig.level}{maximum significance to be visualized}
 

@@ -7,9 +7,7 @@ test_that("NPC", {
 
   types <- c("numeric", "nominal", rep("numeric", 5), rep("ordinal", 4))
 
-  test_cor <- pairwise_cor(mtcars, types)
-  npc <- npc_mixed_cor(test_cor$cor_value, test_cor$cor_type, test_cor$cor_p,
-                       types)
+  test_cor <- expect_silent(pairwise_cor(mtcars, types))
+  npc <- expect_silent(npc_mixed_cor(test_cor))
 
-  # expect_snapshot(npc)
 })

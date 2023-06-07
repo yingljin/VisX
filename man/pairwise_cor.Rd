@@ -4,12 +4,13 @@
 \alias{pairwise_cor}
 \title{Calculate pariwise association of data with mixed types of variables}
 \usage{
-pairwise_cor(df, var_type)
+pairwise_cor(df, var_type = NULL)
 }
 \arguments{
 \item{df}{dataframe with mixed types of variables}
 
-\item{var_type}{a charater vector corresponding to types of variables in df}
+\item{var_type}{a charater vector corresponding to types of variables in df
+if not provided, will guess.}
 }
 \value{
 matrices with measures, types and p values of association

@@ -38,10 +38,10 @@
 #' @import stringr
 #' @import tibble
 #' @importFrom tidyr pivot_longer
-#'
+#' @importFrom nnet multinom
 #'
 
 
 VisX <- function(){
-  shinyApp(ui = ui, server = server, enableBookmarking = "server")
+  shinyApp(ui = ui, server = server, enableBookmarking = "server", options = list(width = 1600, height = 900))
 }

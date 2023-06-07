@@ -2,6 +2,7 @@
 
 export(VisX)
 export(corstars)
+export(pairwise_cor)
 import(dplyr)
 import(ggnewscale)
 import(ggplot2)

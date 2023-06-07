@@ -85,7 +85,7 @@ get_r2 <- function(df, type) {
     }
     # factor
     else if(type[i] == "factor"){
-      mult_fit <- multinom(f, data = df, model = T)
+      mult_fit <- multinom(f, data = df, model = T, trace = FALSE)
       r2[i] <- PseudoR2(mult_fit, which = "Nagelkerke")
 
     }

@@ -14,10 +14,7 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     car,
-    corrr,
-    covr,
     DescTools,
-    devtools,
     dplyr,
     fastDummies,
     ggnewscale,
@@ -31,7 +28,6 @@ Imports:
     magrittr,
     MESS,
     nnet,
-    purrr,
     readr,
     rlang,
     shiny,
@@ -39,7 +35,7 @@ Imports:
     stringr,
     tibble,
     tidyr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Suggests: 
     golem,
